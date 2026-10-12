@@ -32,8 +32,16 @@
   OQ-043-c resolved (ADR-0056); OQ-043-b (per-sub-type) open.
 - **Status flips:** Sprint 16 file + `backlog-index` registry → ✅ Done; US-043, TASK-BE-070,
   TASK-BE-071 → ✅ Done.
-- **Release/deploy:** tag `v0.9.6` pushed → CI builds images `0.9.6`; deployed to eir-ai4cc-tst via
-  `ansible-playbook deploy.yml -e image_tag=0.9.6` (see the deploy note appended below once verified).
+- **Release/deploy (verified 2026-10-12):** tag `v0.9.6` pushed → CI published
+  `ghcr.io/tgrimaud/voice-support-{backend,voice}:0.9.6`; deployed to eir-ai4cc-tst with
+  `ansible-playbook deploy.yml -e image_tag=0.9.6 --limit backend,voice` (Redis left untouched — Up
+  healthy, unchanged infra image; KB-sync **SKIPPED**, no KB source changed). PLAY RECAP `failed=0` on
+  all four app hosts. Post-deploy verify: backend VIP `.11 /actuator/health` → `UP`; both backends
+  `vla-ai4cc-t03/t04` run `voice-support-backend:0.9.6` (healthy); both voice bridges
+  `vla-ai4cc-t01/t02` run `voice-support-voice:0.9.6` (`health=healthy`, `GET :8090/` → 200). Dry-run
+  (`--check`) note: the redis-ping health task fails under `--check` (the `up`/`.env` render are skipped
+  in check mode) — a known dry-run artefact, Redis was `Up (healthy)` out-of-band; the real deploy
+  passed.
 
 ## 2026-10-06 — Pilot deploy v0.9.5 (TASK-BE-069 rollout) + TASK-OPS-017 — KB-sync timeout
 
