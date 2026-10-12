@@ -8,8 +8,9 @@ Date: 2026-10-08 · Branch: `feat/sprint-16-billing-clarify` · Tickets: TASK-BE
   All six product-acceptance scenarios are automated and green; the full backend suite is **758
   tests, 0 failures** (incl. ArchUnit and the 48-scenario Cucumber BDD suite).
 - **Main blockers:** none.
-- **Residual risks:** (a) latency not measured here — this change has no live STT/LLM/TTS in the
-  test environment, so the voice-SLO slices must be confirmed on the pilot with a real provider;
+- **Residual risks:** (a) latency confirmed on the pilot (2026-10-12) — clarify turn ~0.86 s p50
+  (backend+LLM, no retrieval) vs ~1.69 s for a normal answer turn, no regression; end-to-end voice
+  mouth-to-ear still rides the unchanged STT/TTS slices (voice-runtime report);
   (b) on the pilot `/converse` has no live BSS, so clarify improves retrieval/escalation context,
   not amount accuracy (DEC-002 unchanged); (c) memory-derived clarify streak resets on an
   interleaved non-opener turn (by design, ADR-0056).
@@ -42,15 +43,21 @@ Date: 2026-10-08 · Branch: `feat/sprint-16-billing-clarify` · Tickets: TASK-BE
 
 ## Latency Results
 
-| Slice | p50 | p95 | p99 | Sample | Warm/Cold | Notes |
-|---|---:|---:|---:|---:|---|---|
-| LLM wording (clarify turn) | n/a | n/a | n/a | 0 | n/a | **Not measured in this environment** — no live LLM. The clarify call is timed on the existing `llm_wording` slice via `BackendTelemetry.time(...)` and bounded by the same timeout as a normal answer; a clarify turn runs **no retrieval**, so it should be ≤ a normal answer turn. Measure on the pilot. |
-| Channel ingress / EOT / STT / TTS / egress | — | — | — | 0 | — | Not affected by this backend change; measured on the voice runtime (TASK-WEB / streaming latency report). |
+Measured on the **eir-ai4cc-tst pilot** (2026-10-12, v0.9.6), backend `/api/conversation/converse`
+HTTP round-trip from a backend host (`vla-ai4cc-t03`, loopback `:8080`), warm, LLM provider
+`mistral-api`. Backend+LLM slice only — STT/TTS/channel slices are unchanged by this story and are
+reported by the voice-runtime streaming latency report.
 
-Latency verdict: **not yet measurable** for this story in the unit/BDD environment (deterministic
-fakes). The clarify turn adds no retrieval and reuses the bounded `llm_wording` budget, so it is not
-expected to regress the voice SLO; this must be confirmed with a live provider during pilot latency
-runs (p50/p95/p99 of a clarify turn vs a normal answer turn).
+| Turn type | p50 | p95 | min–max | Sample | Warm/Cold | Notes |
+|---|---:|---:|---:|---:|---|---|
+| Clarify turn (LLM wording, **no retrieval**) | ~0.86 s | ~0.96 s | 0.75–0.96 s | 6 | Warm | US-043 clarify (billing opener). |
+| Cap escalation (no LLM) | — | — | ~0.012 s | 1 | Warm | Deterministic hand-off at the cap; no provider call. |
+| Normal answer turn (retrieval + LLM) | ~1.69 s | ~2.65 s | 1.60–2.65 s | 6 | Warm | Amount-anchored billing question (RAG baseline). |
+
+Latency verdict: **GO**. A clarify turn is ~2× faster than a normal answer turn because it skips
+retrieval, and the cap escalation is effectively instant (no provider call). The clarify dialogue
+therefore **does not regress** the backend latency budget — confirmed live on the pilot. End-to-end
+voice mouth-to-ear still rides the unchanged STT/TTS slices (voice-runtime report).
 
 ## Component Findings
 
@@ -66,7 +73,7 @@ runs (p50/p95/p99 of a clarify turn vs a normal answer turn).
 
 | Severity | Finding | Impact | Owner |
 |---|---|---|---|
-| Low | Latency of a clarify turn not measured (no live provider in test env) | Pilot-readiness evidence incomplete for the voice SLO | QA (pilot run) |
+| ~~Low~~ Resolved | Clarify-turn latency measured on the pilot (2026-10-12): ~0.86 s p50 backend+LLM, ~2× faster than a normal answer turn (no retrieval); cap escalation ~0.012 s | No voice-SLO regression | Closed |
 | Low | Pilot clarify improves retrieval/escalation context only, not amounts (no live BSS) | Expected per US-043 scope; DEC-002 unchanged | Product / OQ-002 |
 | Low | Per-sub-type clarify (increase / unknown charge / promo expiry) not specialised | Single generic clarify prompt | Product / OQ-043-b |
 

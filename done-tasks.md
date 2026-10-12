@@ -42,6 +42,15 @@
   (`--check`) note: the redis-ping health task fails under `--check` (the `up`/`.env` render are skipped
   in check mode) — a known dry-run artefact, Redis was `Up (healthy)` out-of-band; the real deploy
   passed.
+- **Live smoke + latency (US-043 on v0.9.6, 2026-10-12):** against `vla-ai4cc-t03:8080`
+  `/api/conversation/converse` (mistral-api): a repeated under-specified billing opener produced two
+  distinct LLM-worded French clarifying questions (no amount — DEC-002) then, at the configurable cap
+  (default 2), the advisor hand-off with `escalation_context` (`low_confidence`); an amount-anchored
+  billing question bypassed to the RAG answer (confidence 0.72). **Latency** (warm, backend+LLM):
+  clarify turn **~0.86 s p50** (0.75–0.96, n=6, no retrieval), cap escalation **~0.012 s** (no LLM),
+  normal answer turn **~1.69 s p50** (1.60–2.65, n=6) — the clarify dialogue is ~2× faster than a
+  normal answer and adds **no latency regression**. QA report latency section updated with these
+  pilot numbers (QA follow-up closed).
 
 ## 2026-10-06 — Pilot deploy v0.9.5 (TASK-BE-069 rollout) + TASK-OPS-017 — KB-sync timeout
 
