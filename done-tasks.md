@@ -3,6 +3,38 @@
 > **Scope: Voice Support Bot only.** This is the ledger for all `voice-support-bot`
 > work. Do not log bot work in the workspace-root `BMad/done-tasks.md`.
 
+## 2026-10-12 — Sprint 16 closed (US-043 billing clarify) + release v0.9.6
+
+**Summary:**
+
+- **Sprint 16 (billing clarification) closed** and fast-forward-merged into
+  `feat/restart-from-scratch`; released as **v0.9.6**. Delivered **US-043** (ask a clarifying
+  question before answering a billing problem) in two increments.
+- **TASK-BE-070 (increment D):** broadened `ProblemOpenerDetector` so an under-specified billing
+  opener with a weak interrogative marker is clarified (the user-reported "too direct" fix), while an
+  amount-anchored billing question (digit / "euro(s)") still bypasses to retrieval; one-question-at-a-time
+  targeted clarify (`problem_opener_billing` / `_general`). Adversarial review 93/100 (Pass).
+- **TASK-BE-071 (increment C):** `BillingDiagnosticConversationService` decorator implementing both
+  converse ports over the real `ConversationService`/`StreamingConversationService`; **clarify streak
+  derived from `ConversationMemoryPort`** (no new state); **configurable**
+  `voice-support.conversation.billing-clarify.max-questions` (env
+  `CONVERSATION_BILLING_CLARIFY_MAX_QUESTIONS`, default **2**, `<=0` disables ⇒ TASK-BE-070 behaviour);
+  LLM-worded follow-up via new `ClarifyingQuestionGeneratorPort` (`CLARIFY_SYSTEM_PROMPT`, no RAG,
+  `AnswerLanguage.clarifyDirective()` recency-last), **DEC-002-vetted** by the existing
+  `OutputGuardrail`; at the cap → `AnswerLanguage.handoffSentence()` escalation with the collected
+  context (ADR-0019); telemetry `voice_support.billing_clarify`. **ADR-0056** (OQ-043-c). Adversarial
+  review 93/100 (Pass).
+- **QA (skill qa-functional-latency):** 6 product-acceptance BDD scenarios
+  (`billing-clarify.feature` + `BillingClarifySteps`, Cucumber suite 42→48) plus service/adapter tests;
+  **full backend suite 758 green** (incl. ArchUnit). QA report
+  `docs/qa/us-043-billing-clarify-qa-report.md` — functional **GO**; clarify-turn latency to confirm on
+  the pilot (reuses the bounded `llm_wording` slice, no retrieval). OQ-043-a resolved (default 2),
+  OQ-043-c resolved (ADR-0056); OQ-043-b (per-sub-type) open.
+- **Status flips:** Sprint 16 file + `backlog-index` registry → ✅ Done; US-043, TASK-BE-070,
+  TASK-BE-071 → ✅ Done.
+- **Release/deploy:** tag `v0.9.6` pushed → CI builds images `0.9.6`; deployed to eir-ai4cc-tst via
+  `ansible-playbook deploy.yml -e image_tag=0.9.6` (see the deploy note appended below once verified).
+
 ## 2026-10-06 — Pilot deploy v0.9.5 (TASK-BE-069 rollout) + TASK-OPS-017 — KB-sync timeout
 
 **Summary:**

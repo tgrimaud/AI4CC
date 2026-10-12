@@ -1,7 +1,7 @@
 # TASK-BE-071 — Billing clarify increment C: deterministic trigger + bounded LLM follow-up
 
 **Type:** Technical task (backend — conversation flow + guardrails + LLM prompt)
-**Status:** 🔵 Implemented, pending QA + user validation (2026-10-08). Increment **C** (target) of US-043; builds on TASK-BE-070.
+**Status:** ✅ Done — merged to `feat/restart-from-scratch` (Sprint 16 closure 2026-10-12), released **v0.9.6**. QA GO (6 BDD scenarios + service/adapter tests, suite 758 green). Increment **C** (target) of US-043; builds on TASK-BE-070.
 **Adversarial review 93/100 (Pass, 2026-10-08)** — no blocking finding; residual (accepted): memory-derived streak resets on an interleaved non-opener turn (by design); pilot clarify improves retrieval/escalation context only, not amount accuracy (no live BSS); per-sub-type clarify deferred (OQ-043-b). Review: [`docs/qa/task-be-071-adversarial-review.md`](../../docs/qa/task-be-071-adversarial-review.md). ADR: [ADR-0056](../../docs/architecture/adrs/ADR-0056-bounded-billing-clarify-dialogue.md).
 **Sprint:** Sprint 16 (`feat/sprint-16-billing-clarify`). Ticket branch `task/TASK-BE-071-billing-diagnostic` forked **off the TASK-BE-070 branch** (C depends on D's un-merged code); git reconciles at the sprint merge.
 

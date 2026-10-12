@@ -105,5 +105,13 @@ this sprint branch (`git merge --no-ff`); the sprint branch merges into
 
 ## Status
 
-🟡 **In progress (opened 2026-10-08)** — sprint branch created; US-043 + TASK-BE-070/071
-tickets drafted. No implementation started yet. TASK-BE-070 (increment D) is next.
+✅ **Done (closed 2026-10-12)** — both increments delivered, QA GO, merged to
+`feat/restart-from-scratch` and released as **v0.9.6**. US-043 shipped via TASK-BE-070 (increment D —
+deterministic one-question clarify + broadened `ProblemOpenerDetector`) and TASK-BE-071 (increment C —
+`BillingDiagnosticConversationService` decorator: memory-derived clarify streak, configurable
+`billing-clarify.max-questions` default 2, bounded LLM follow-up via `ClarifyingQuestionGeneratorPort`,
+DEC-002-vetted, cap → advisor hand-off with collected context; ADR-0056). Both reviews 93/100 (Pass).
+QA: 6 product-acceptance BDD scenarios (`billing-clarify.feature`) + service/adapter tests; full
+backend suite **758 green**. QA report `docs/qa/us-043-billing-clarify-qa-report.md` (functional GO;
+clarify-turn latency to confirm on the pilot). OQ-043-a resolved (default 2), OQ-043-c resolved
+(ADR-0056); OQ-043-b (per-sub-type) remains open.

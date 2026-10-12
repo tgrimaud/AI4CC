@@ -1167,8 +1167,9 @@ Scenario: No selection uses the deployment default
 
 **Parent:** EPIC-005 (Answer engine / knowledge base) / related EPIC-006 (Web voice journey)
 **Classification:** V1 core — conversation quality; runtime-affecting (answer flow + guardrails).
-**Status:** Draft (2026-10-08) — surfaced by user feedback: on billing problems the bot answers
-too directly and just enumerates billing information instead of first understanding the problem.
+**Status:** ✅ Done (Sprint 16, 2026-10-12) — released **v0.9.6**. Both increments shipped
+(TASK-BE-070 D + TASK-BE-071 C, ADR-0056); QA GO. Surfaced by user feedback: on billing problems the
+bot answered too directly and enumerated billing information instead of first understanding the problem.
 **Sprint:** Sprint 16 (`feat/sprint-16-billing-clarify`, off `feat/restart-from-scratch`).
 **Priority:** Medium
 **Delivery plan:** two increments (user-chosen 2026-10-08) — **D first** (TASK-BE-070: broaden the

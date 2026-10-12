@@ -1,8 +1,7 @@
 # TASK-BE-070 — Billing clarify increment D: broaden the opener detector + one question at a time
 
 **Type:** Technical task (backend — conversation guardrails)
-**Status:** 🟡 In review (2026-10-08) — implemented on `task/TASK-BE-070-billing-clarify`; backend
-suite green (746 tests, 0 failures). Awaiting user validation + QA. Increment **D** of US-043.
+**Status:** ✅ Done — merged to `feat/restart-from-scratch` (Sprint 16 closure 2026-10-12), released **v0.9.6**. QA GO. Increment **D** of US-043.
 **Adversarial review 93/100 (Pass, 2026-10-08)** — no blocking finding; residual (accepted): deliberate
 billing broadening clarifies weak-marker billing openers (the user-reported fix), amount anchor is narrow
 (digit/"euro(s)"), payment-mechanic + multi-turn depth deferred to TASK-BE-071. Review:
