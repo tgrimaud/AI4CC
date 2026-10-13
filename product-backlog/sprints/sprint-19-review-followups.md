@@ -28,9 +28,11 @@ live since `v0.9.4`+, AI4CC rebrand).
 
 | Ticket | Title | Status |
 |--------|-------|--------|
-| BUG-030 | Streaming STT CancelFrame socket leak | ✅ Fixed — `fix/BUG-030-stt-cancelframe-teardown`, regression test, 733 unittest + 43 behave green; pending user validation + merge |
-| TASK-DOC-011 | Refresh architecture.md + reconcile CLAUDE.md | 🟢 In progress — `task/TASK-DOC-011-refresh-architecture-claude` |
+| BUG-030 | Streaming STT CancelFrame socket leak | ✅ Fixed + merged into the sprint (`--no-ff`); adversarial review 95/100 (Pass); 733 unittest + 43 behave green |
+| TASK-DOC-011 | Refresh architecture.md + reconcile CLAUDE.md | ✅ Done + merged into the sprint (`--no-ff`); `git diff --check` clean |
 
 ## Status
 
-🟢 In progress (opened 2026-10-13).
+🟢 In progress (opened 2026-10-13) — both tickets merged into the sprint branch
+`feat/sprint-19-review-followups` (`--no-ff`). Sprint closure (merge into
+`feat/restart-from-scratch` + status flip) awaits the user's explicit request.
