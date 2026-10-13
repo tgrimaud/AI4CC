@@ -11,7 +11,7 @@
         <relativePath/>
     </parent>
 
-    <groupId>com.voicesupport</groupId>
+    <groupId>com.ai4cc</groupId>
     <artifactId>voice-support-backend</artifactId>
     <version>0.1.0-SNAPSHOT</version>
     <name>voice-support-backend</name>
@@ -278,16 +278,16 @@
                         </dependencies>
                         <configuration>
                             <targetClasses>
-                                <param>com.voicesupport.conversation.domain.service.*</param>
-                                <param>com.voicesupport.conversation.application.service.*</param>
-                                <param>com.voicesupport.knowledge.domain.service.*</param>
-                                <param>com.voicesupport.knowledge.infrastructure.adapter.out.classifier.*</param>
+                                <param>com.ai4cc.conversation.domain.service.*</param>
+                                <param>com.ai4cc.conversation.application.service.*</param>
+                                <param>com.ai4cc.knowledge.domain.service.*</param>
+                                <param>com.ai4cc.knowledge.infrastructure.adapter.out.classifier.*</param>
                             </targetClasses>
                             <targetTests>
-                                <param>com.voicesupport.conversation.domain.service.*</param>
-                                <param>com.voicesupport.conversation.application.service.*</param>
-                                <param>com.voicesupport.knowledge.domain.service.*</param>
-                                <param>com.voicesupport.knowledge.infrastructure.adapter.out.classifier.*</param>
+                                <param>com.ai4cc.conversation.domain.service.*</param>
+                                <param>com.ai4cc.conversation.application.service.*</param>
+                                <param>com.ai4cc.knowledge.domain.service.*</param>
+                                <param>com.ai4cc.knowledge.infrastructure.adapter.out.classifier.*</param>
                             </targetTests>
                             <outputFormats>
                                 <param>HTML</param>

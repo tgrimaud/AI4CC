@@ -1,0 +1,184 @@
+package com.ai4cc.conversation.infrastructure.config;
+
+import com.ai4cc.conversation.application.service.AnswerService;
+import com.ai4cc.conversation.application.service.BillingDiagnosticConversationService;
+import com.ai4cc.conversation.application.service.ConversationService;
+import com.ai4cc.conversation.application.service.RetrievalGroundingService;
+import com.ai4cc.conversation.application.service.StreamingConversationService;
+import com.ai4cc.conversation.application.service.WarmUpService;
+import com.ai4cc.conversation.domain.port.in.AnswerQuestionUseCase;
+import com.ai4cc.conversation.domain.port.in.GroundQueryUseCase;
+import com.ai4cc.conversation.domain.port.in.WarmUpUseCase;
+import com.ai4cc.conversation.domain.port.out.AnswerGeneratorPort;
+import com.ai4cc.conversation.domain.port.out.ClarifyingQuestionGeneratorPort;
+import com.ai4cc.conversation.domain.port.out.ConversationMemoryPort;
+import com.ai4cc.conversation.domain.port.out.KnowledgeRetrievalPort;
+import com.ai4cc.conversation.domain.model.valueobject.AnswerLanguage;
+import com.ai4cc.conversation.domain.port.out.StreamingAnswerGeneratorPort;
+import com.ai4cc.conversation.domain.service.EvidenceContextTrimmer;
+import com.ai4cc.conversation.domain.service.InputGuardrail;
+import com.ai4cc.conversation.domain.service.LanguageDetector;
+import com.ai4cc.conversation.domain.service.OutputGuardrail;
+import com.ai4cc.conversation.domain.service.ProblemOpenerDetector;
+import com.ai4cc.conversation.domain.service.RetrievalConfidenceGuardrail;
+import com.ai4cc.shared.observability.BackendTelemetry;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
+@Configuration
+@EnableConfigurationProperties(BillingClarifyProperties.class)
+public class ConversationConfig {
+
+    // ADR-0034: the vague-turn markers (contentless continuers like "vas-y", "ok") that trigger a
+    // clarify instead of retrieving a weak, possibly wrong-audience match (BUG-005). Configurable so
+    // the list can be tuned per deployment/language without a rebuild.
+    @Bean
+    public InputGuardrail inputGuardrail(
+            @Value("${voice-support.conversation.vague-markers:"
+                    + "vas-y,vas y,allez-y,allez y,continue,continuez,poursuis,poursuivez,ensuite,"
+                    + "la suite,go,go on,go ahead,ok,okay,d'accord,dac,dacc,alors,donc,bah,ben,euh,"
+                    + "hmm,voila,voilà,et}") List<String> vagueMarkers) {
+        return new InputGuardrail(vagueMarkers);
+    }
+
+    // ADR-0034: three-band confidence policy. Below confidence-threshold -> advisor hand-off; between
+    // it and clarify-threshold -> ask to clarify; at/above -> answer. clarify-threshold <= threshold
+    // disables the clarify band. Definitive billing proof threshold stays gated by OQ-002.
+    @Bean
+    public RetrievalConfidenceGuardrail retrievalConfidenceGuardrail(
+            @Value("${voice-support.conversation.confidence-threshold:0.5}") double confidenceThreshold,
+            @Value("${voice-support.conversation.clarify-threshold:0.62}") double clarifyThreshold) {
+        return new RetrievalConfidenceGuardrail(confidenceThreshold, clarifyThreshold);
+    }
+
+    // Prefill-reduction context budget (TASK-BE-033 lever 2): caps the KB text fed to the LLM to
+    // shrink prompt prefill (a ~linear driver of first-token latency). Both budgets default to 0
+    // (disabled) so behaviour is unchanged until tuned per deployment; the LLM and the per-sentence
+    // OutputGuardrail see the SAME trimmed context, so DEC-002 stays consistent (grounding recall is
+    // the measured trade-off). max-chars-per-passage caps each chunk; max-context-chars caps the sum.
+    @Bean
+    public EvidenceContextTrimmer evidenceContextTrimmer(
+            @Value("${voice-support.conversation.retrieval.max-chars-per-passage:0}") int maxCharsPerPassage,
+            @Value("${voice-support.conversation.retrieval.max-context-chars:0}") int maxContextChars) {
+        return new EvidenceContextTrimmer(maxCharsPerPassage, maxContextChars);
+    }
+
+    @Bean
+    public GroundQueryUseCase groundQueryUseCase(
+            InputGuardrail inputGuardrail,
+            RetrievalConfidenceGuardrail retrievalConfidenceGuardrail,
+            KnowledgeRetrievalPort knowledgeRetrievalPort,
+            EvidenceContextTrimmer evidenceContextTrimmer) {
+        return new RetrievalGroundingService(
+                inputGuardrail, retrievalConfidenceGuardrail, knowledgeRetrievalPort, evidenceContextTrimmer);
+    }
+
+    @Bean
+    public OutputGuardrail outputGuardrail() {
+        return new OutputGuardrail();
+    }
+
+    // Answer-language decision (TASK-BE-015): default language used when a turn is too ambiguous to
+    // detect and no session language is established. English for the Eir pilot; configurable per
+    // deployment via voice-support.conversation.default-language.
+    @Bean
+    public LanguageDetector languageDetector(
+            @Value("${voice-support.conversation.default-language:en}") String defaultLanguage) {
+        return new LanguageDetector(AnswerLanguage.fromCode(defaultLanguage));
+    }
+
+    @Bean
+    public AnswerQuestionUseCase answerQuestionUseCase(
+            GroundQueryUseCase groundQueryUseCase,
+            AnswerGeneratorPort answerGeneratorPort,
+            OutputGuardrail outputGuardrail,
+            LanguageDetector languageDetector,
+            BackendTelemetry backendTelemetry) {
+        return new AnswerService(
+                groundQueryUseCase, answerGeneratorPort, outputGuardrail, languageDetector, backendTelemetry);
+    }
+
+    // Conversation memory + delivery de-duplication wiring (conversationMemoryPort,
+    // deliveryDeduplicationPort, idempotentDeliveryGuard) lives in ConversationMemoryConfig, and the
+    // escalation hand-off wiring in EscalationHandoffConfig — both extracted to keep this class within
+    // the 200-line budget.
+
+    // US-043 / TASK-BE-071 (increment C): the stateful converse / converse-stream entry points are the
+    // billing-diagnostic decorator, which wraps the real ConversationService / StreamingConversationService
+    // delegates and adds a BOUNDED, LLM-worded billing clarify dialogue. The delegates stay plain objects
+    // (not beans) so a SINGLE decorator bean serves both the sync ConverseUseCase and the streaming
+    // ConverseStreamUseCase (it implements both ports) — exposing it as one bean keeps exactly one
+    // candidate per interface for type-based injection. max-questions is configurable (OQ-043-a,
+    // default 2); <= 0 disables the diagnostic (every turn flows to the plain pipeline, keeping the
+    // TASK-BE-070 single canned clarify). TASK-BE-072 (OQ-043-b): the per-deployment billing sub-type
+    // list (BillingClarifyProperties) steers the clarify question; an empty list keeps the generic prompt.
+    @Bean
+    public BillingDiagnosticConversationService billingDiagnosticConversationService(
+            AnswerQuestionUseCase answerQuestionUseCase,
+            GroundQueryUseCase groundQueryUseCase,
+            StreamingAnswerGeneratorPort streamingAnswerGeneratorPort,
+            OutputGuardrail outputGuardrail,
+            ConversationMemoryPort conversationMemoryPort,
+            LanguageDetector languageDetector,
+            ClarifyingQuestionGeneratorPort clarifyingQuestionGeneratorPort,
+            BillingClarifyProperties billingClarifyProperties,
+            BackendTelemetry backendTelemetry,
+            @Value("${voice-support.conversation.retrieval.top-k:5}") int topK,
+            @Value("${voice-support.conversation.billing-clarify.max-questions:2}") int maxQuestions) {
+        ConversationService answerDelegate =
+                new ConversationService(answerQuestionUseCase, conversationMemoryPort, topK);
+        StreamingConversationService streamDelegate = new StreamingConversationService(
+                groundQueryUseCase, streamingAnswerGeneratorPort, outputGuardrail,
+                conversationMemoryPort, languageDetector, backendTelemetry, topK);
+        return new BillingDiagnosticConversationService(
+                answerDelegate, streamDelegate, conversationMemoryPort, new ProblemOpenerDetector(),
+                clarifyingQuestionGeneratorPort, languageDetector, outputGuardrail, backendTelemetry,
+                maxQuestions, billingClarifyProperties.toTopics());
+    }
+
+    // Connect-time warm-up of the embedding + LLM (TASK-BE-017 / ADR-0037): the voice runtime calls
+    // POST /api/conversation/warm-up on WebRTC connect so the first real turn is warm (lever 2). The
+    // warm query is configurable per deployment/language; it touches no conversation memory.
+    // stream-enabled (TASK-BE-020, default on) also warms the reactive streaming path used by
+    // converse-stream — a distinct HTTP client the synchronous warm-up leaves cold; passing a null
+    // streaming generator when disabled skips it without penalising fullyWarmed.
+    @Bean
+    public WarmUpUseCase warmUpUseCase(
+            KnowledgeRetrievalPort knowledgeRetrievalPort,
+            AnswerGeneratorPort answerGeneratorPort,
+            StreamingAnswerGeneratorPort streamingAnswerGeneratorPort,
+            BackendTelemetry backendTelemetry,
+            @Value("${voice-support.conversation.warmup.query:hello}") String warmQuery,
+            @Value("${voice-support.conversation.warmup.stream-enabled:true}") boolean streamEnabled,
+            @Value("${voice-support.conversation.default-language:en}") String defaultLanguage) {
+        StreamingAnswerGeneratorPort streamGenerator = streamEnabled ? streamingAnswerGeneratorPort : null;
+        return new WarmUpService(knowledgeRetrievalPort, answerGeneratorPort, streamGenerator,
+                backendTelemetry, warmQuery, AnswerLanguage.fromCode(defaultLanguage));
+    }
+
+    // Bounded daemon pool for SSE stream workers (TASK-BE-007): each /converse-stream turn holds a
+    // worker for the whole stream, so max-threads caps concurrent streams and a bounded queue caps
+    // the backlog. Beyond both, submissions are rejected (AbortPolicy) and the controller degrades
+    // to a sanitized 503 rather than queueing unboundedly — same fail-fast stance as the LLM pool.
+    @Bean(destroyMethod = "shutdown")
+    public ExecutorService sseStreamExecutor(
+            @Value("${voice-support.conversation.stream.max-threads:16}") int maxThreads,
+            @Value("${voice-support.conversation.stream.queue-capacity:32}") int queueCapacity) {
+        ThreadFactory factory = runnable -> {
+            Thread thread = new Thread(runnable, "sse-stream");
+            thread.setDaemon(true);
+            return thread;
+        };
+        return new ThreadPoolExecutor(maxThreads, maxThreads, 60L, TimeUnit.SECONDS,
+                new LinkedBlockingQueue<>(queueCapacity), factory, new ThreadPoolExecutor.AbortPolicy());
+    }
+}
