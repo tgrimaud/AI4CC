@@ -35,7 +35,7 @@ public class OpenApiConfig {
 
     private Info apiInfo(String version) {
         return new Info()
-                .title("Voice Support Bot — Backend API")
+                .title("AI4CC — Backend API")
                 .version(version)
                 .description("RAG answer engine for the operator support voice assistant: knowledge-base "
                         + "sync/ingestion and the conversation endpoints the voice runtime calls "

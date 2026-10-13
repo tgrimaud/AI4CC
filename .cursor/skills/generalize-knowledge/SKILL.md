@@ -9,19 +9,19 @@ or when the user asks to save what was learned.
 
 ## Scope — write to THIS repository only
 
-This skill belongs to the **`voice-support-bot`** repository. When it runs while
+This skill belongs to the **`ai4cc`** repository. When it runs while
 working on Voice Support Bot, it must write to the files at the **root of this
-repository** (`voice-support-bot/`), **never** to the workspace-root `BMad/`
+repository** (`ai4cc/`), **never** to the workspace-root `BMad/`
 files:
 
 | Target | Correct path | Do NOT use |
 |--------|--------------|------------|
-| Context | `voice-support-bot/CLAUDE.md` | `BMad/claude.md` |
-| Agent pitfalls | `voice-support-bot/AGENTS.md` | `BMad/agents.md` |
-| Done log | `voice-support-bot/done-tasks.md` | `BMad/done-tasks.md` |
+| Context | `ai4cc/CLAUDE.md` | `BMad/claude.md` |
+| Agent pitfalls | `ai4cc/AGENTS.md` | `BMad/agents.md` |
+| Done log | `ai4cc/done-tasks.md` | `BMad/done-tasks.md` |
 
 If the paths above are addressed relative to the open workspace, resolve them
-against the `voice-support-bot/` directory, not the `BMad` workspace root. The
+against the `ai4cc/` directory, not the `BMad` workspace root. The
 `BMad/` knowledge files govern `cursor-usage-dashboard/` and must stay untouched
 by Voice Support Bot work.
 
@@ -50,7 +50,7 @@ Review the current conversation and identify:
 5. **Completed work** — user stories, tasks, sprints, or bug tickets finished
    in this session.
 
-### Step 2 — Update `voice-support-bot/CLAUDE.md`
+### Step 2 — Update `ai4cc/CLAUDE.md`
 
 This file gives future AI assistants fast context about the project. Append to
 the **existing sections** — never remove or rewrite content that's already there.
@@ -65,7 +65,7 @@ the **existing sections** — never remove or rewrite content that's already the
 Do NOT duplicate entries already present. Read the current content first and
 skip anything that's already captured.
 
-### Step 3 — Update `voice-support-bot/AGENTS.md`
+### Step 3 — Update `ai4cc/AGENTS.md`
 
 Append to the **Common mistakes to avoid** section with new bullets for
 pitfalls discovered in this session. Same rule: read first, skip duplicates.
@@ -73,11 +73,11 @@ pitfalls discovered in this session. Same rule: read first, skip duplicates.
 Only add entries that represent mistakes a future AI agent would plausibly
 make — not one-off typos or environment issues.
 
-### Step 4 — Update `voice-support-bot/done-tasks.md`
+### Step 4 — Update `ai4cc/done-tasks.md`
 
 Add a new dated section at the **bottom** of the file. Follow the existing
-format (paths are relative to the `voice-support-bot/` repository root, e.g.
-`voice-agent/...`, `backend/...`, `docs/...` — no `voice-support-bot/` prefix):
+format (paths are relative to the `ai4cc/` repository root, e.g.
+`voice-agent/...`, `backend/...`, `docs/...` — no `ai4cc/` prefix):
 
 ```markdown
 ## YYYY-MM-DD — Short title
@@ -100,7 +100,7 @@ After updating all three files, tell the user:
 
 ## Important constraints
 
-- **Right repository** — always write to `voice-support-bot/{CLAUDE.md,AGENTS.md,done-tasks.md}`,
+- **Right repository** — always write to `ai4cc/{CLAUDE.md,AGENTS.md,done-tasks.md}`,
   never the workspace-root `BMad/` files.
 - **Read before writing** — always read each file's current content before
   editing to avoid duplicates or format mismatches.

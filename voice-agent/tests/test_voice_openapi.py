@@ -36,7 +36,7 @@ class VoiceOpenApiSpecTest(unittest.TestCase):
         # GIVEN the committed spec
         # THEN it declares OpenAPI 3, an info block and at least one server
         self.assertTrue(str(self.spec.get("openapi", "")).startswith("3."))
-        self.assertIn("Voice Support Bot", self.spec["info"]["title"])
+        self.assertIn("AI4CC", self.spec["info"]["title"])
         self.assertTrue(self.spec["info"]["version"])
         self.assertTrue(self.spec.get("servers"))
 

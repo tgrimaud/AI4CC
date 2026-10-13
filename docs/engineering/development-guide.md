@@ -444,11 +444,11 @@ curl -w "\nTTFB: %{time_starttransfer}s\nTotal: %{time_total}s\n" -s -o /dev/nul
   "http://localhost:8081/api/conversation/ask-stream?question=Hello&conversation_id=perf"
 
 # View indexed chunks
-docker exec voice-support-bot-postgres-1 psql -U voicesupport -d voicesupport \
+docker exec ai4cc-postgres-1 psql -U voicesupport -d voicesupport \
   -c "SELECT id, substring(content, 1, 80) FROM vector_store LIMIT 10;"
 
 # Empty the knowledge base (re-ingestion)
-docker exec voice-support-bot-postgres-1 psql -U voicesupport -d voicesupport \
+docker exec ai4cc-postgres-1 psql -U voicesupport -d voicesupport \
   -c "DELETE FROM vector_store;"
 
 # View admin stats

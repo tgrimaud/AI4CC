@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  title: Voice Support Bot — Voice Runtime HTTP API
+  title: AI4CC — Voice Runtime HTTP API
   version: "1.0.0"
   description: >-
     HTTP surface of the Python voice runtime (`voice-agent/web_voice/server.py`):

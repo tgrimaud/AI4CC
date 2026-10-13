@@ -23,7 +23,7 @@ class OpenApiConfigTest {
         OpenAPI api = config.voiceSupportOpenApi("9.9.9");
 
         // THEN the info and the optional api-key header scheme are described
-        assertEquals("Voice Support Bot — Backend API", api.getInfo().getTitle());
+        assertEquals("AI4CC — Backend API", api.getInfo().getTitle());
         assertEquals("9.9.9", api.getInfo().getVersion());
         SecurityScheme scheme = api.getComponents().getSecuritySchemes().get(OpenApiConfig.API_KEY_SCHEME);
         assertNotNull(scheme);

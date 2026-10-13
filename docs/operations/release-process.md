@@ -62,8 +62,8 @@ Versions are produced by CI, never by hand.
    `v1.2.0` → image tag **`1.2.0`** (plus `sha-<commit>`). Confirm both packages
    exist at that tag in GHCR before deploying:
    ```bash
-   docker buildx imagetools inspect ghcr.io/<owner>/voice-support-backend:1.2.0
-   docker buildx imagetools inspect ghcr.io/<owner>/voice-support-voice:1.2.0
+   docker buildx imagetools inspect ghcr.io/<owner>/ai4cc-backend:1.2.0
+   docker buildx imagetools inspect ghcr.io/<owner>/ai4cc-voice:1.2.0
    ```
 
 `latest` is published on the mainline for convenience but MUST NOT be used to

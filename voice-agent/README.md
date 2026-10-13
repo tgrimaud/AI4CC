@@ -311,7 +311,7 @@ answers instead of the stub). From the repository root:
 ```bash
 # 1. Infra: pgvector (5433) + Ollama (11434), then pull the embedding model
 docker compose up -d postgres ollama
-docker exec -it voice-support-bot-ollama-1 ollama pull nomic-embed-text   # first run only
+docker exec -it ai4cc-ollama-1 ollama pull nomic-embed-text   # first run only
 
 # 2. Java answer engine on :8080 (OpenAI gpt-5 chat by default — Mistral/Ollama selectable — + Ollama embeddings + pgvector)
 cd backend && set -a && . ../.env && set +a && mvn spring-boot:run

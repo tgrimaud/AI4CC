@@ -348,7 +348,7 @@ attempt the first live smoke test.
 4. **TLS at the voice edge.** Certificate provisioning and the public FQDN for
    the voice VIP (`.prod.lan` / `10.195.59.39`).
 5. ~~**Container registry**~~ ✅ **Resolved (2026-08-05): GHCR, PRIVATE packages**
-   `ghcr.io/tgrimaud/voice-support-backend` and `ghcr.io/tgrimaud/voice-support-voice`
+   `ghcr.io/tgrimaud/ai4cc-backend` and `ghcr.io/tgrimaud/ai4cc-voice`
    (pushed by TASK-OPS-001 with immutable tags `X.Y.Z` — no `v`; git tag `vX.Y.Z` →
    image tag `X.Y.Z` — plus `sha-<short>`; `latest` on the mainline only). Private → the
    VMs authenticate with a **read-only token**: `registry_login_required: true` +

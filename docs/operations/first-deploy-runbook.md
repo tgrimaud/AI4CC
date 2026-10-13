@@ -69,8 +69,8 @@ Confirm both private packages exist at that tag before deploying (read-only PAT
 
 ```bash
 echo "$PAT" | docker login ghcr.io -u tgrimaud --password-stdin
-docker buildx imagetools inspect ghcr.io/tgrimaud/voice-support-backend:0.4.0
-docker buildx imagetools inspect ghcr.io/tgrimaud/voice-support-voice:0.4.0
+docker buildx imagetools inspect ghcr.io/tgrimaud/ai4cc-backend:0.4.0
+docker buildx imagetools inspect ghcr.io/tgrimaud/ai4cc-voice:0.4.0
 docker logout ghcr.io
 ```
 
