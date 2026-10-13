@@ -3,6 +3,7 @@ package com.voicesupport.bdd.steps;
 import com.voicesupport.conversation.application.service.BillingDiagnosticConversationService;
 import com.voicesupport.conversation.domain.model.TokenStream;
 import com.voicesupport.conversation.domain.model.valueobject.AnswerLanguage;
+import com.voicesupport.conversation.domain.model.valueobject.BillingClarifyTopic;
 import com.voicesupport.conversation.domain.model.valueobject.ConversationTurn;
 import com.voicesupport.conversation.domain.model.valueobject.GeneratedAnswer;
 import com.voicesupport.conversation.domain.port.in.ConverseStreamUseCase;
@@ -41,6 +42,7 @@ public class BillingClarifySteps {
     private InMemoryConversationMemoryAdapter memory;
     private int maxQuestions;
     private GeneratedAnswer answer;
+    private List<BillingClarifyTopic> subTypes;
 
     @Before
     public void setUp() {
@@ -50,6 +52,7 @@ public class BillingClarifySteps {
         memory = new InMemoryConversationMemoryAdapter(6, 100);
         maxQuestions = 2;
         answer = null;
+        subTypes = List.of();
     }
 
     @Given("the billing clarifying budget is {int} questions")
@@ -67,6 +70,13 @@ public class BillingClarifySteps {
     @Given("the language model would propose a clarifying question mentioning an amount")
     public void llmWouldMentionAmount() {
         clarifyGenerator.withAmount = true;
+    }
+
+    @Given("the deployment offers billing sub-types {string} and {string}")
+    public void offersSubTypes(String first, String second) {
+        subTypes = List.of(
+                new BillingClarifyTopic("first", first, first),
+                new BillingClarifyTopic("second", second, second));
     }
 
     @When("the customer sends {string}")
@@ -120,11 +130,21 @@ public class BillingClarifySteps {
         assertFalse(answer.text().matches(".*\\d.*"), "no figure may be voiced (DEC-002): " + answer.text());
     }
 
+    @Then("the clarifying question narrows among the configured billing sub-types")
+    public void narrowsAmongSubTypes() {
+        assertFalse(answer.requiresEscalation(), "a steered clarify is still a clarify, not an escalation");
+        assertEquals(subTypes.size(), clarifyGenerator.receivedHints.size(),
+                "the configured sub-type hints must reach the clarify wording step");
+        String firstHint = subTypes.get(0).hint(AnswerLanguage.FRENCH);
+        assertTrue(answer.text().contains(firstHint),
+                "the clarify question must weave a configured sub-type: " + answer.text());
+    }
+
     private BillingDiagnosticConversationService service() {
         return new BillingDiagnosticConversationService(
                 answerDelegate, streamDelegate, memory, new ProblemOpenerDetector(), clarifyGenerator,
                 new LanguageDetector(AnswerLanguage.FRENCH), new OutputGuardrail(),
-                new BackendTelemetry(new SimpleMeterRegistry()), maxQuestions, List.of());
+                new BackendTelemetry(new SimpleMeterRegistry()), maxQuestions, subTypes);
     }
 
     private static final class FakeConverse implements ConverseUseCase {
@@ -160,15 +180,21 @@ public class BillingClarifySteps {
     private static final class FakeClarify implements ClarifyingQuestionGeneratorPort {
         private boolean withAmount;
         private int calls;
+        private List<String> receivedHints = List.of();
 
         @Override
         public String generateClarifyingQuestion(
                 String question, List<String> history, AnswerLanguage language, List<String> subTypeHints) {
             calls++;
+            this.receivedHints = subTypeHints;
             if (withAmount) {
                 return language == AnswerLanguage.FRENCH
                         ? "Votre facture a-t-elle augmenté de 10 euros ?"
                         : "Did your bill go up by 10 euros?";
+            }
+            if (!subTypeHints.isEmpty()) {
+                // Simulates the LLM narrowing the single question among the configured sub-types.
+                return "S'agit-il de " + subTypeHints.get(0) + " ou de " + subTypeHints.get(1) + " ?";
             }
             return language == AnswerLanguage.FRENCH ? FR_CLARIFY : "Could you tell me more about the problem?";
         }

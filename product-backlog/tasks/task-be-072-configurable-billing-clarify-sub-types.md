@@ -1,11 +1,13 @@
 # TASK-BE-072 — Make the billing clarify sub-types a configurable, enrichable list
 
 **Type:** Technical task (backend — conversation flow + clarify prompt + escalation context)
-**Status:** 🔵 Implemented, pending adversarial review + QA + user validation (2026-10-13) — **Sprint 17**
+**Status:** 🟢 Implemented + reviewed + QA GO, pending user validation + merge (2026-10-13) — **Sprint 17**
 (`feat/sprint-17-clarify-subtypes`), ticket branch `task/TASK-BE-072-configurable-billing-clarify-sub-types`.
 Scope delivered = **config-driven sub-type steering** of the clarify question (FR/EN) + empty-list
 fallback + telemetry; the sub-type→escalation-tag detection is **deferred** (needs a classifier, see
-Follow-up). Backend suite **777 green** incl. ArchUnit.
+Follow-up). Backend suite **778 green** incl. ArchUnit + 7 billing-clarify BDD scenarios.
+**QA GO** (functional) — report: [`docs/qa/task-be-072-sub-types-qa-report.md`](../../docs/qa/task-be-072-sub-types-qa-report.md);
+post-deploy: live FR/EN clarify smoke + re-read the `llm_wording` clarify slice.
 **Adversarial review 93/100 (Pass, 2026-10-13)** — no blocking finding; residual (accepted): escalation-tag
 detection deferred to a follow-up; base-clarify-prompt wording tension (Low, backstopped by the single-question
 directive + DEC-002 OutputGuardrail). Review: [`docs/qa/task-be-072-adversarial-review.md`](../../docs/qa/task-be-072-adversarial-review.md).

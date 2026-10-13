@@ -40,3 +40,10 @@ Feature: Bounded billing clarifying dialogue (US-043 increment C)
     Then the assistant offers to transfer the customer to a human advisor
     And the response contains no amount
     # BR4, DEC-002
+
+  Scenario: The clarifying question narrows among the configured billing sub-types (TASK-BE-072)
+    Given the deployment offers billing sub-types "une facture plus élevée que d'habitude" and "un montant non reconnu"
+    When the customer sends "J'ai un problème avec ma facture"
+    Then the clarifying question narrows among the configured billing sub-types
+    And the response contains no amount
+    # OQ-043-b

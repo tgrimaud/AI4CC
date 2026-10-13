@@ -30,10 +30,10 @@ amount-free question. Product confirmed a starter set of **7** sub-types (2026-1
 
 | Ticket | Title | Status |
 |--------|-------|--------|
-| TASK-BE-072 | Configurable billing clarify sub-types (OQ-043-b) | 🔵 Implemented, review 93/100 (Pass), pending QA + user validation — `tasks/task-be-072-configurable-billing-clarify-sub-types.md` |
+| TASK-BE-072 | Configurable billing clarify sub-types (OQ-043-b) | 🟢 Implemented, review 93/100 (Pass), QA GO, pending user validation + merge — `tasks/task-be-072-configurable-billing-clarify-sub-types.md` |
 
 ## Status
 
 🟡 In progress (opened 2026-10-13). Branch `feat/sprint-17-clarify-subtypes` off `feat/restart-from-scratch`;
 ticket branch `task/TASK-BE-072-configurable-billing-clarify-sub-types`. TASK-BE-072 implemented
-(suite 777 green incl. ArchUnit), adversarial review 93/100 (Pass). Pending user validation + merge.
+(suite 778 green incl. ArchUnit), adversarial review 93/100 (Pass), QA GO (functional). Pending user validation + merge.
