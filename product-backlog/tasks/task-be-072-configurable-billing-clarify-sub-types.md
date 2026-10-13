@@ -1,7 +1,11 @@
 # TASK-BE-072 — Make the billing clarify sub-types a configurable, enrichable list
 
 **Type:** Technical task (backend — conversation flow + clarify prompt + escalation context)
-**Status:** 🟢 Open — **not scheduled** (backlog, pending prioritisation into a future sprint). No branch yet.
+**Status:** 🔵 Implemented, pending adversarial review + QA + user validation (2026-10-13) — **Sprint 17**
+(`feat/sprint-17-clarify-subtypes`), ticket branch `task/TASK-BE-072-configurable-billing-clarify-sub-types`.
+Scope delivered = **config-driven sub-type steering** of the clarify question (FR/EN) + empty-list
+fallback + telemetry; the sub-type→escalation-tag detection is **deferred** (needs a classifier, see
+Follow-up). Backend suite **777 green** incl. ArchUnit.
 **Priority:** Medium
 **Epic:** EPIC-005 (Answer engine / knowledge base)
 **Delivers:** OQ-043-b resolution (US-043). Builds on TASK-BE-071 (increment C) which shipped a **generic** clarify prompt.
@@ -46,24 +50,48 @@ billing comparison engine causes.
   most ~2–3 of them, without turning into an enumeration (keep the DEC-002 "ask only, no amount" rule and
   the voice-friendly single-question framing).
 
-**3. Carry the sub-type into the escalation context:**
-- When a sub-type is understood (or at cap), include its escalation tag in the ADR-0019 collected context
-  handed to the advisor (the real pilot win — no live BSS).
+**3. Carry the sub-type into the escalation context:** — **DEFERRED to a follow-up** (see below).
+Detecting *which* configured sub-type the customer meant needs a deterministic classifier/matcher plus
+a change to the ADR-0019 escalation-context assembly; out of scope for this first, config-only increment.
 
 **Observability (mandatory):**
-- Extend `voice_support.billing_clarify` so the (anonymous) sub-type id/outcome is observable (QA can
-  verify which sub-type steered the question), correlation-id as usual.
+- Extend `voice_support.billing_clarify` with a `sub_types` count tag so QA can verify sub-type steering
+  was applied (0 = generic prompt), correlation-id as usual.
+
+## Implementation (2026-10-13)
+
+- New domain VO `BillingClarifyTopic(id, fr, en)` + `hint(language)`.
+- `ClarifyingQuestionGeneratorPort.generateClarifyingQuestion(...)` gains a `subTypeHints` arg; the
+  shared `AbstractChatClientAnswerAdapter` appends a language-owned `AnswerLanguage.clarifySubTypeDirective(hints)`
+  **before** the recency-last clarify directive (empty hints ⇒ generic prompt unchanged).
+- `BillingDiagnosticConversationService` resolves the configured topics to hints in the session
+  language and passes them to the generator; records the offered count on telemetry.
+- `BillingClarifyProperties` (`@ConfigurationProperties voice-support.conversation.billing-clarify`)
+  binds `sub-types` (relaxed binding, drops entries without an id) → `toTopics()`; wired via
+  `@EnableConfigurationProperties` in `ConversationConfig`.
+- Starter set of **7** sub-types shipped as the `application.yml` default.
+- Tests: `BillingDiagnosticConversationServiceTest` (+3), `ClarifyingQuestionAdapterTest` (+1),
+  `BillingClarifyPropertiesTest` (3 Binder tests); updated BDD glue + wiring fakes to the new port
+  signature. Backend suite **777 green** incl. ArchUnit. Pure domain Spring-free; manual fakes; no Mockito.
+
+## Follow-up (deferred from this ticket)
+
+- **Sub-type → escalation tag.** Add a deterministic matcher (per-topic keywords, config-driven) over
+  the accumulated customer turns to tag a best-effort sub-type, and carry its `escalationTag` into the
+  ADR-0019 collected context handed to the advisor. Needs an `escalationTag` field on the config entry
+  + a change to the escalation-context assembly. To be ticketed when prioritised.
 
 ## Acceptance criteria
 
 - Adding/removing/relabelling a sub-type is a **config change only** (no code change), FR/EN.
 - The clarify question is steered by the configured sub-types but stays a single natural question
   (no enumeration), DEC-002 preserved (no amount) — covered by service/adapter tests with a fake LLM.
-- Empty/absent config ⇒ identical behaviour to TASK-BE-071 (regression-safe default).
-- The understood sub-type (when any) appears in the escalation context handed off to the advisor.
+- Empty/absent config ⇒ identical behaviour to TASK-BE-071 (regression-safe default). ✅
+- ~~The understood sub-type (when any) appears in the escalation context handed off to the advisor.~~
+  **Deferred** — see Follow-up (needs a classifier + escalation-assembly change).
 - Backend `mvn test` green incl. ArchUnit; pure domain Spring-free; beans wired in config. Manual fakes,
-  GIVEN/WHEN/THEN, no Mockito.
-- Sub-type/outcome telemetry present and asserted.
+  GIVEN/WHEN/THEN, no Mockito. ✅
+- Sub-type steering telemetry present and asserted (`sub_types` count tag). ✅
 
 ## Risks / open questions
 

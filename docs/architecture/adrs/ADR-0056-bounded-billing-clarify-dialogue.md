@@ -89,6 +89,17 @@ emptyEvidence, language)`: with empty evidence any voiced amount is UNGROUNDED a
 is LOW_CONFIDENCE → the clarify is **dropped** and replaced by the hand-off. A well-formed question
 voices no figure, so it passes. No new guardrail logic is introduced.
 
+**Sub-type steering (TASK-BE-072, OQ-043-b, 2026-10-13).** The port gained an optional
+`subTypeHints` argument: a per-deployment, enrichable list of billing problem SUB-TYPES
+(`voice-support.conversation.billing-clarify.sub-types`, bound by `BillingClarifyProperties` into the
+domain `BillingClarifyTopic`) is resolved into short FR/EN hint phrasings and passed to the generator,
+which appends a language-owned `AnswerLanguage.clarifySubTypeDirective(hints)` **before** the
+recency-last clarify directive. The LLM may then narrow the single question among 2-3 of the common
+issues the assistant can actually explain (KB + comparison engine), still ONE question, still
+amount-free. An **empty list keeps the generic prompt** (regression-safe default); adding/removing a
+sub-type is config only. The Product-confirmed starter set of 7 ships in `application.yml`. Steering
+is observed via the `sub_types` count on the `billing_clarify` meter.
+
 ### D4 — At the cap, escalate with the collected context (never another question)
 
 When the streak reaches `max-questions`, the turn returns `AnswerLanguage.handoffSentence()` as a
@@ -135,8 +146,10 @@ timeout budget as answers), so a slow provider degrades to the sanitized path.
 - On the pilot `/converse` has no live invoice data, so the clarify improves retrieval/escalation
   context only, not amount accuracy. When live BSS lands (OQ-002), the collected context should feed
   the deterministic billing chain (ADR-0052/0055) rather than only RAG — tracked as a follow-up.
-- The per-sub-type clarify specialisation (billing *increase* vs *new charge* vs *promo expiry*,
-  OQ-043-b) is **not** modelled; a single billing clarify prompt is used.
+- Per-sub-type clarify *steering* is now config-driven (TASK-BE-072): the clarify prompt can offer
+  common billing sub-types from a per-deployment list. What is **still** deferred is *detecting which*
+  sub-type the customer meant and carrying that tag into the escalation handoff content — that needs a
+  deterministic classifier and an escalation-assembly change (noted on TASK-BE-072 as a follow-up).
 
 ## Alternatives considered
 
@@ -161,4 +174,6 @@ timeout budget as answers), so a slow provider degrades to the sanitized path.
 - DEC-002 (LLM only phrases grounded content; never invents amounts)
 - ADR-0052 / ADR-0055 (deterministic billing chain + `/converse` routing — the live-data follow-up)
 - BUG-007 / OQ-008 (no runtime query classifier), BUG-005 (weak-match grounding)
-- OQ-043-a (configurable question count — resolved: default 2), OQ-043-b (per-sub-type clarify — open)
+- OQ-043-a (configurable question count — resolved: default 2)
+- OQ-043-b (per-sub-type clarify — resolved 2026-10-09: configurable list), TASK-BE-072 (config-driven
+  sub-type steering of the clarify question; escalation-tag detection deferred)

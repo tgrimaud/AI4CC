@@ -2,6 +2,7 @@ package com.voicesupport.conversation.application.service;
 
 import com.voicesupport.conversation.domain.model.TokenStream;
 import com.voicesupport.conversation.domain.model.valueobject.AnswerLanguage;
+import com.voicesupport.conversation.domain.model.valueobject.BillingClarifyTopic;
 import com.voicesupport.conversation.domain.model.valueobject.ConversationTurn;
 import com.voicesupport.conversation.domain.model.valueobject.GeneratedAnswer;
 import com.voicesupport.conversation.domain.model.valueobject.GuardrailDecision;
@@ -48,6 +49,9 @@ public class BillingDiagnosticConversationService implements ConverseUseCase, Co
     private final OutputGuardrail outputGuardrail;
     private final BackendTelemetry telemetry;
     private final int maxQuestions;
+    // TASK-BE-072 (OQ-043-b): per-deployment, enrichable billing sub-types that steer the clarify
+    // question; empty ⇒ the generic TASK-BE-071 clarify prompt.
+    private final List<BillingClarifyTopic> subTypes;
 
     public BillingDiagnosticConversationService(
             ConverseUseCase answerDelegate,
@@ -58,7 +62,8 @@ public class BillingDiagnosticConversationService implements ConverseUseCase, Co
             LanguageDetector languageDetector,
             OutputGuardrail outputGuardrail,
             BackendTelemetry telemetry,
-            int maxQuestions) {
+            int maxQuestions,
+            List<BillingClarifyTopic> subTypes) {
         this.answerDelegate = answerDelegate;
         this.streamDelegate = streamDelegate;
         this.memory = memory;
@@ -68,6 +73,7 @@ public class BillingDiagnosticConversationService implements ConverseUseCase, Co
         this.outputGuardrail = outputGuardrail;
         this.telemetry = telemetry;
         this.maxQuestions = maxQuestions;
+        this.subTypes = subTypes == null ? List.of() : List.copyOf(subTypes);
     }
 
     @Override
@@ -124,14 +130,21 @@ public class BillingDiagnosticConversationService implements ConverseUseCase, Co
         AnswerLanguage language = languageDetector.resolve(transcript, history, forcedLanguage);
         int streak = billingStreak(prior);
         if (streak < maxQuestions) {
-            String question = clarifyGenerator.generateClarifyingQuestion(transcript, history, language);
+            List<String> hints = subTypeHints(language);
+            String question = clarifyGenerator.generateClarifyingQuestion(transcript, history, language, hints);
             if (!outputGuardrail.check(question, List.of(), language).blocked()) {
-                telemetry.recordBillingClarify("asked", language.code(), streak + 1);
+                telemetry.recordBillingClarify("asked", language.code(), streak + 1, hints.size());
                 return GeneratedAnswer.fallback(question, GuardrailDecision.Verdict.CLARIFY);
             }
         }
-        telemetry.recordBillingClarify("cap_escalated", language.code(), streak);
+        telemetry.recordBillingClarify("cap_escalated", language.code(), streak, 0);
         return GeneratedAnswer.fallback(language.handoffSentence(), GuardrailDecision.Verdict.LOW_CONFIDENCE);
+    }
+
+    // Resolves the configured billing sub-types into their hint phrasing in the answer language so the
+    // clarify question can gently narrow among them (TASK-BE-072); empty when none are configured.
+    private List<String> subTypeHints(AnswerLanguage language) {
+        return subTypes.stream().map(topic -> topic.hint(language)).toList();
     }
 
     private boolean isBillingOpener(String text) {

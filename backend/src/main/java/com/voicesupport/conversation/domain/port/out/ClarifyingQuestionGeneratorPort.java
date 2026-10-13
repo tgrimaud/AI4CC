@@ -9,7 +9,11 @@ import java.util.List;
 // clarifying question in the answer language (never an answer, never an amount — DEC-002). It is a
 // separate port from AnswerGeneratorPort so the clarify-turn framing (ask, don't answer; no RAG
 // context) stays explicit and the deterministic trigger/bound live in the orchestration layer.
+// subTypeHints (TASK-BE-072, OQ-043-b) are optional, already resolved in the answer language, and
+// let the single question gently narrow among the configured billing sub-types; an empty list keeps
+// the generic clarify prompt.
 public interface ClarifyingQuestionGeneratorPort {
 
-    String generateClarifyingQuestion(String question, List<String> history, AnswerLanguage language);
+    String generateClarifyingQuestion(
+            String question, List<String> history, AnswerLanguage language, List<String> subTypeHints);
 }

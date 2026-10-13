@@ -90,6 +90,25 @@ public enum AnswerLanguage {
                   + "not state any amount, price or date; do not answer, only ask the question.";
     }
 
+    // US-043 / TASK-BE-072 (OQ-043-b): optional steering appended to the clarify turn when the
+    // deployment configures billing sub-types. It lets the single clarify question gently narrow
+    // among the common billing issues (a short either/or), while staying ONE question that states no
+    // amount (DEC-002). Appended before the recency-last clarifyDirective(); empty when no sub-type is
+    // configured, so the clarify falls back to the TASK-BE-071 generic prompt.
+    public String clarifySubTypeDirective(List<String> hints) {
+        if (hints == null || hints.isEmpty()) {
+            return "";
+        }
+        String joined = String.join(this == FRENCH ? " ; " : "; ", hints);
+        return this == FRENCH
+                ? "ORIENTATION : si c'est naturel, ta question peut proposer un bref choix parmi ces "
+                  + "problèmes de facturation courants — " + joined + " — en n'en mentionnant que "
+                  + "deux ou trois au maximum, le tout dans UNE SEULE question, sans énumérer toute la liste."
+                : "STEERING: if it feels natural, your question may offer a brief choice among these "
+                  + "common billing issues — " + joined + " — mentioning at most two or three, all "
+                  + "within ONE single question, without listing the whole set.";
+    }
+
     // US-043 / TASK-BE-071: the exact advisor hand-off sentence used when the billing clarify budget
     // is exhausted (ADR-0019). It reproduces the hand-off wording embedded in llmDirective() verbatim
     // so it carries the handoffMarkers() the OutputGuardrail / voice runtime recognise as an escalation.

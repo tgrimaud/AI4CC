@@ -23,6 +23,7 @@ import com.voicesupport.conversation.domain.service.ProblemOpenerDetector;
 import com.voicesupport.conversation.domain.service.RetrievalConfidenceGuardrail;
 import com.voicesupport.shared.observability.BackendTelemetry;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -34,6 +35,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 @Configuration
+@EnableConfigurationProperties(BillingClarifyProperties.class)
 public class ConversationConfig {
 
     // ADR-0034: the vague-turn markers (contentless continuers like "vas-y", "ok") that trigger a
@@ -117,7 +119,8 @@ public class ConversationConfig {
     // ConverseStreamUseCase (it implements both ports) — exposing it as one bean keeps exactly one
     // candidate per interface for type-based injection. max-questions is configurable (OQ-043-a,
     // default 2); <= 0 disables the diagnostic (every turn flows to the plain pipeline, keeping the
-    // TASK-BE-070 single canned clarify).
+    // TASK-BE-070 single canned clarify). TASK-BE-072 (OQ-043-b): the per-deployment billing sub-type
+    // list (BillingClarifyProperties) steers the clarify question; an empty list keeps the generic prompt.
     @Bean
     public BillingDiagnosticConversationService billingDiagnosticConversationService(
             AnswerQuestionUseCase answerQuestionUseCase,
@@ -127,6 +130,7 @@ public class ConversationConfig {
             ConversationMemoryPort conversationMemoryPort,
             LanguageDetector languageDetector,
             ClarifyingQuestionGeneratorPort clarifyingQuestionGeneratorPort,
+            BillingClarifyProperties billingClarifyProperties,
             BackendTelemetry backendTelemetry,
             @Value("${voice-support.conversation.retrieval.top-k:5}") int topK,
             @Value("${voice-support.conversation.billing-clarify.max-questions:2}") int maxQuestions) {
@@ -137,7 +141,8 @@ public class ConversationConfig {
                 conversationMemoryPort, languageDetector, backendTelemetry, topK);
         return new BillingDiagnosticConversationService(
                 answerDelegate, streamDelegate, conversationMemoryPort, new ProblemOpenerDetector(),
-                clarifyingQuestionGeneratorPort, languageDetector, outputGuardrail, backendTelemetry, maxQuestions);
+                clarifyingQuestionGeneratorPort, languageDetector, outputGuardrail, backendTelemetry,
+                maxQuestions, billingClarifyProperties.toTopics());
     }
 
     // Connect-time warm-up of the embedding + LLM (TASK-BE-017 / ADR-0037): the voice runtime calls

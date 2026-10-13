@@ -37,7 +37,7 @@ class ClarifyingQuestionAdapterTest {
     @DisplayName("returns the model's single question, stripped")
     void returnsStrippedQuestion() {
         String question = adapter.generateClarifyingQuestion(
-                "J'ai un souci avec ma facture", List.of(), AnswerLanguage.FRENCH);
+                "J'ai un souci avec ma facture", List.of(), AnswerLanguage.FRENCH, List.of());
 
         assertEquals("Depuis quand remarquez-vous ce souci ?", question);
     }
@@ -45,7 +45,7 @@ class ClarifyingQuestionAdapterTest {
     @Test
     @DisplayName("builds an ask-one-question prompt with NO RAG context and the clarify directive LAST")
     void buildsClarifyPromptWithoutContext() {
-        adapter.generateClarifyingQuestion("J'ai un souci avec ma facture", List.of(), AnswerLanguage.FRENCH);
+        adapter.generateClarifyingQuestion("J'ai un souci avec ma facture", List.of(), AnswerLanguage.FRENCH, List.of());
 
         String system = model.lastSystemMessage;
         assertTrue(system.contains("ask ONE short"), "must instruct to ask a single question");
@@ -62,7 +62,7 @@ class ClarifyingQuestionAdapterTest {
         List<String> history = List.of("Client : J'ai un souci avec ma facture",
                 "Assistant : Pouvez-vous m'en dire plus ?");
 
-        adapter.generateClarifyingQuestion("Elle a augmenté", history, AnswerLanguage.FRENCH);
+        adapter.generateClarifyingQuestion("Elle a augmenté", history, AnswerLanguage.FRENCH, List.of());
 
         assertTrue(model.lastSystemMessage.contains("Pouvez-vous m'en dire plus ?"),
                 "the prior assistant question must be visible so the LLM does not repeat it");
@@ -71,9 +71,22 @@ class ClarifyingQuestionAdapterTest {
     @Test
     @DisplayName("a null language falls back to English")
     void nullLanguageFallsBackToEnglish() {
-        adapter.generateClarifyingQuestion("I have a billing problem", List.of(), null);
+        adapter.generateClarifyingQuestion("I have a billing problem", List.of(), null, List.of());
 
         assertTrue(model.lastSystemMessage.trim().endsWith(AnswerLanguage.ENGLISH.clarifyDirective()));
+    }
+
+    @Test
+    @DisplayName("TASK-BE-072: configured sub-type hints steer the prompt (before the recency-last directive)")
+    void subTypeHintsSteerThePrompt() {
+        adapter.generateClarifyingQuestion("J'ai un souci avec ma facture", List.of(), AnswerLanguage.FRENCH,
+                List.of("une facture plus élevée que d'habitude", "un montant non reconnu"));
+
+        String system = model.lastSystemMessage;
+        assertTrue(system.contains("une facture plus élevée que d'habitude"), "the hint must be woven into the prompt");
+        assertTrue(system.contains("ORIENTATION"), "the FR steering block must be present");
+        assertTrue(system.trim().endsWith(AnswerLanguage.FRENCH.clarifyDirective()),
+                "the language clarify directive must still be the trailing instruction (recency)");
     }
 
     // Fake ChatModel capturing the last Prompt's system message and returning a fixed question.

@@ -145,12 +145,22 @@ public class BackendTelemetry {
     // QA/Ops can measure how often the bot clarifies, the per-conversation depth, and the cap-hit rate
     // (US-043 analytics). Records technical dimensions only — never the transcript or the question text.
     public void recordBillingClarify(String event, String language, int count) {
+        recordBillingClarify(event, language, count, 0);
+    }
+
+    // TASK-BE-072 (OQ-043-b) overload: also carries how many configured billing sub-types STEERED the
+    // clarify question (0 = none configured ⇒ the generic TASK-BE-071 prompt). sub_types is a small
+    // bounded integer tag (0..N) so QA/Ops can verify sub-type steering was applied without raising
+    // cardinality; still technical dimensions only — never the transcript or the question text.
+    public void recordBillingClarify(String event, String language, int count, int subTypes) {
         String channel = normalizeChannel(CorrelationId.currentChannel());
         String safeEvent = event == null || event.isBlank() ? "n/a" : event;
         String safeLanguage = language == null || language.isBlank() ? "n/a" : language;
-        meters.count(BILLING_CLARIFY, Tags.of("event", safeEvent, "language", safeLanguage, "channel", channel));
-        log.info("[BILLING-CLARIFY] event={} language={} count={} channel={} correlation_id={}",
-                safeEvent, safeLanguage, count, channel, CorrelationId.current());
+        String safeSubTypes = Integer.toString(Math.max(0, subTypes));
+        meters.count(BILLING_CLARIFY, Tags.of("event", safeEvent, "language", safeLanguage,
+                "channel", channel, "sub_types", safeSubTypes));
+        log.info("[BILLING-CLARIFY] event={} language={} count={} sub_types={} channel={} correlation_id={}",
+                safeEvent, safeLanguage, count, safeSubTypes, channel, CorrelationId.current());
     }
 
     // Normalized channel envelope observability (TASK-BE-037, ADR-0009): counts inbound channel

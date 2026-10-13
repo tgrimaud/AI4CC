@@ -2,6 +2,7 @@ package com.voicesupport.conversation.application.service;
 
 import com.voicesupport.conversation.domain.model.TokenStream;
 import com.voicesupport.conversation.domain.model.valueobject.AnswerLanguage;
+import com.voicesupport.conversation.domain.model.valueobject.BillingClarifyTopic;
 import com.voicesupport.conversation.domain.model.valueobject.GeneratedAnswer;
 import com.voicesupport.conversation.domain.port.in.ConverseStreamUseCase;
 import com.voicesupport.conversation.domain.port.in.ConverseUseCase;
@@ -46,10 +47,14 @@ class BillingDiagnosticConversationServiceTest {
     }
 
     private BillingDiagnosticConversationService service(int maxQuestions) {
+        return service(maxQuestions, List.of());
+    }
+
+    private BillingDiagnosticConversationService service(int maxQuestions, List<BillingClarifyTopic> subTypes) {
         return new BillingDiagnosticConversationService(
                 answerDelegate, streamDelegate, memory, new ProblemOpenerDetector(), clarifyGenerator,
                 new LanguageDetector(AnswerLanguage.FRENCH), new OutputGuardrail(),
-                new BackendTelemetry(meterRegistry), maxQuestions);
+                new BackendTelemetry(meterRegistry), maxQuestions, subTypes);
     }
 
     @Test
@@ -191,6 +196,40 @@ class BillingDiagnosticConversationServiceTest {
                 meterRegistry.get("voice_support.billing_clarify").tag("event", "asked").counter().count());
     }
 
+    @Test
+    @DisplayName("TASK-BE-072: configured billing sub-types are passed to the clarify generator as hints")
+    void sub_types_steer_the_clarify_question() {
+        List<BillingClarifyTopic> subTypes = List.of(
+                new BillingClarifyTopic("higher-than-usual", "une facture plus élevée", "a higher bill"),
+                new BillingClarifyTopic("unrecognised-charge", "un montant non reconnu", "an unknown charge"));
+
+        service(2, subTypes).converse(BILLING_OPENER, "c1", null);
+
+        assertEquals(List.of("une facture plus élevée", "un montant non reconnu"), clarifyGenerator.lastHints,
+                "the configured sub-type hints must be resolved in the session language and passed to the LLM step");
+    }
+
+    @Test
+    @DisplayName("TASK-BE-072: no configured sub-types ⇒ the clarify generator receives no hints (generic prompt)")
+    void no_sub_types_passes_empty_hints() {
+        service(2).converse(BILLING_OPENER, "c1", null);
+
+        assertTrue(clarifyGenerator.lastHints.isEmpty(), "an empty config must keep the generic clarify prompt");
+    }
+
+    @Test
+    @DisplayName("TASK-BE-072: the billing_clarify telemetry carries the offered sub-type count")
+    void records_sub_type_count_telemetry() {
+        List<BillingClarifyTopic> subTypes = List.of(
+                new BillingClarifyTopic("a", "a", "a"), new BillingClarifyTopic("b", "b", "b"));
+
+        service(2, subTypes).converse(BILLING_OPENER, "c1", null);
+
+        assertEquals(1.0, meterRegistry.get("voice_support.billing_clarify")
+                .tag("event", "asked").tag("sub_types", "2").counter().count(),
+                "the asked clarify must record how many sub-types steered it");
+    }
+
     // --- fakes -------------------------------------------------------------------------------
 
     private static final class FakeConverse implements ConverseUseCase {
@@ -229,14 +268,17 @@ class BillingDiagnosticConversationServiceTest {
     private static final class FakeClarifyGenerator implements ClarifyingQuestionGeneratorPort {
         private final String question;
         private int calls;
+        private List<String> lastHints = List.of();
 
         private FakeClarifyGenerator(String question) {
             this.question = question;
         }
 
         @Override
-        public String generateClarifyingQuestion(String question, List<String> history, AnswerLanguage language) {
+        public String generateClarifyingQuestion(
+                String question, List<String> history, AnswerLanguage language, List<String> subTypeHints) {
             calls++;
+            this.lastHints = subTypeHints;
             return this.question;
         }
     }

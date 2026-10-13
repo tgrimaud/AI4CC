@@ -124,7 +124,7 @@ public class BillingClarifySteps {
         return new BillingDiagnosticConversationService(
                 answerDelegate, streamDelegate, memory, new ProblemOpenerDetector(), clarifyGenerator,
                 new LanguageDetector(AnswerLanguage.FRENCH), new OutputGuardrail(),
-                new BackendTelemetry(new SimpleMeterRegistry()), maxQuestions);
+                new BackendTelemetry(new SimpleMeterRegistry()), maxQuestions, List.of());
     }
 
     private static final class FakeConverse implements ConverseUseCase {
@@ -162,7 +162,8 @@ public class BillingClarifySteps {
         private int calls;
 
         @Override
-        public String generateClarifyingQuestion(String question, List<String> history, AnswerLanguage language) {
+        public String generateClarifyingQuestion(
+                String question, List<String> history, AnswerLanguage language, List<String> subTypeHints) {
             calls++;
             if (withAmount) {
                 return language == AnswerLanguage.FRENCH
