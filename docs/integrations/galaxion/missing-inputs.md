@@ -8,7 +8,7 @@
 ## Objective
 
 This list centralizes the information to request from Galaxion, BSS, billing and
-security stakeholders to validate the Voice Support Bot V1.
+security stakeholders to validate the AI4CC V1.
 
 It avoids scattering open questions across architecture documents. Each input
 must help confirm the BSS flow, adjust the invoice extraction JSON, or secure

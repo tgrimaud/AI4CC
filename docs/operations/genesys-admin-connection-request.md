@@ -1,10 +1,10 @@
-# Genesys Admin — Connection Request: Genesys Cloud → Voice Support Bot (Audio Connector / AudioHook)
+# Genesys Admin — Connection Request: Genesys Cloud → AI4CC (Audio Connector / AudioHook)
 
 > Ticket: TASK-INFRA-013 (created) · updated under TASK-INFRA-014 (2026-08-31) · coordination refresh TASK-INFRA-016 (2026-08-31) · Sprint 13 (Genesys Audio Connector, closed) · Status: **endpoint deployed + app-layer self-tested — ready for the Genesys admin to configure**
 > Audience: Genesys Cloud administrators + our netops/runtime engineers.
 
 ## 1. Purpose
-Configure a Genesys Cloud **Audio Connector (AudioHook)** integration so Genesys streams live call audio, over `wss`, to our Voice Support Bot pilot endpoint, and routes the by-reference handoff back to a human advisor queue at session end. **Genesys is the initiator** — it connects **inbound** to our endpoint.
+Configure a Genesys Cloud **Audio Connector (AudioHook)** integration so Genesys streams live call audio, over `wss`, to our AI4CC pilot endpoint, and routes the by-reference handoff back to a human advisor queue at session end. **Genesys is the initiator** — it connects **inbound** to our endpoint.
 
 ## 1a. Current state (2026-08-31) — what is ready, what is not
 - **Deployed:** the connector ships in pilot image **`v0.8.0`** and the AudioHook endpoint is **enabled** (`VOICE_GENESYS=on`) on both bridge nodes **`vla-ai4cc-t01` / `t02`** at `:8090`, path `/genesys/audiohook` (ADR-0047 single async server). Both containers report healthy.

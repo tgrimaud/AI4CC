@@ -2,7 +2,7 @@
 
 ## Objective
 
-This document prepares the integration of the Voice Support Bot with the
+This document prepares the integration of the AI4CC with the
 operator's existing BSS.
 
 The target BSS is composed of several microservices. To move quickly without
