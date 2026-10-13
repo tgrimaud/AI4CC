@@ -77,7 +77,7 @@ Full ticket detail: `tasks/task-be-070-billing-clarify-one-question-at-a-time.md
 | OQ | Question | Owner | Status |
 |----|----------|-------|--------|
 | OQ-043-a | Max clarifying questions on voice (1/2/3) before answering/escalating | Product | ✅ Resolved (2026-10-08) — **default 2** (user-chosen), configurable via `voice-support.conversation.billing-clarify.max-questions` / `CONVERSATION_BILLING_CLARIFY_MAX_QUESTIONS` |
-| OQ-043-b | Should the billing sub-types offered be configurable per deployment | Product | Open |
+| OQ-043-b | Should the billing sub-types offered be configurable per deployment | Product | ✅ Resolved (2026-10-09) — **yes**: per-deployment configurable, enrichable list; Product-confirmed starter set of **7** sub-types. Follow-up **TASK-BE-072** (not scheduled) to make it config-driven; increment-C clarify prompt stays generic until then |
 | OQ-043-c | Does the multi-turn diagnostic (C) change the conversation contract enough to need an ADR | Architecture | ✅ Resolved (2026-10-08) — yes: [ADR-0056](../../docs/architecture/adrs/ADR-0056-bounded-billing-clarify-dialogue.md) (bounded, memory-derived billing clarify dialogue) |
 
 ## Observability & Latency
@@ -114,4 +114,4 @@ DEC-002-vetted, cap → advisor hand-off with collected context; ADR-0056). Both
 QA: 6 product-acceptance BDD scenarios (`billing-clarify.feature`) + service/adapter tests; full
 backend suite **758 green**. QA report `docs/qa/us-043-billing-clarify-qa-report.md` (functional GO;
 clarify-turn latency to confirm on the pilot). OQ-043-a resolved (default 2), OQ-043-c resolved
-(ADR-0056); OQ-043-b (per-sub-type) remains open.
+(ADR-0056); OQ-043-b resolved (2026-10-09 — 7 configurable sub-types; follow-up TASK-BE-072, not scheduled).

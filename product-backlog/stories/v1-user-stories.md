@@ -1315,7 +1315,7 @@ Feature: Clarifying questions for billing problems
     6. Payment, direct-debit or refund issue / Problème de paiement, prélèvement ou remboursement —
        payment-options, refunds, non-payment articles.
     7. Promotion or discount ended / Promotion ou remise expirée — comparison end-of-discount / price rise.
-  Not yet ticketed (brainstorm consigned only; the current increment-C clarify prompt stays generic).
-  Making the list config-driven in the clarify prompt + handoff tag is a future task once prioritised.
+  Making the list config-driven in the clarify prompt + handoff tag is tracked as **TASK-BE-072**
+  (Open, not scheduled; the current increment-C clarify prompt stays generic until it is prioritised).
 - OQ-043-c: Does the target C increment change the conversation contract enough to need an ADR
   (multi-turn diagnostic state)? Decision owner: Architecture.
