@@ -10,7 +10,7 @@ compose_src: "voice"
 # interface, so `curl http://127.0.0.1:8090/` from the host false-failed and aborted
 # the rolling deploy. The container's own HEALTHCHECK curls localhost:8090 inside the
 # container namespace, so `docker inspect .State.Health.Status` is the reliable gate.
-health_container_name: "voice-support-bridge"
+health_container_name: "ai4cc-bridge"
 # Fallback HTTP probe (used only if health_container_name is unset). Kept for
 # reference; not used while the container-health gate above is active.
 health_url: "http://127.0.0.1:8090/"

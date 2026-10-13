@@ -7,7 +7,7 @@ compose_src: "redis"
 # No HTTP health; the container healthcheck runs `redis-cli ping`. The role
 # verifies via `docker exec ... redis-cli ping` after `up -d`.
 health_url: ""
-redis_container_name: "voice-support-redis"
+redis_container_name: "ai4cc-redis"
 
 redis_image_tag: "7-alpine"
 redis_bind: "0.0.0.0"

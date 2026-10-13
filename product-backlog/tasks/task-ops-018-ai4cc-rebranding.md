@@ -20,13 +20,26 @@
 | GitHub repo | `tgrimaud/V2V` | `tgrimaud/AI4CC` | `gh repo rename` + update local `origin` remote |
 | Local directory | `voice-support-bot/` | `ai4cc/` | **last step**, session-sensitive (absolute tool paths) — do after everything else and reopen the workspace |
 
-## Must NOT rename (landmines)
+## Must NOT rename (preserved infra identities)
+
+These are **live identities of the running pilot**, not user-facing branding. Renaming them without a
+coordinated data/stack migration would break the pilot, so they are kept as-is (same class of decision as the
+DB role). A later, separately-ticketed migration can align them during a maintenance window if desired.
 
 - **Postgres role / database `voicesupport`** (application.yml, `deploy/ansible/group_vars/backend.yml`,
-  `deploy/compose/backend/.env.example`, `deploy/backup/pg-*.sh`): this is the live infra identity of the
-  **running pilot DB**. Renaming it would break the app↔DB connection unless the DB role is also migrated
-  on every environment. Keep as-is (it is not user-facing branding).
+  `deploy/compose/backend/.env.example`, `deploy/backup/pg-*.sh`): renaming breaks the app↔DB connection
+  unless the DB role is migrated on every environment.
+- **Host filesystem paths** `/opt/voice-support` (`compose_root`) and `/var/backups/voice-support/{postgres,redis}`:
+  these point at the pilot's existing compose stacks (with vault-rendered `.env`) and existing backups.
+  Renaming them orphans the live stacks/backups.
+- **Spring config property prefix `voice-support.*`** (`application.yml` keys, `@ConfigurationProperties`/`@Value`,
+  Ansible `java_opts -Dvoice-support.embedding.timeout-ms`): internal, non-user-facing config namespace; a
+  rename is a deep backend refactor with no branding value.
 - Any secret/vault value.
+
+> **Pre-existing (out of scope):** `deploy/ansible/qa-validate-ansible.sh` reports 2 pre-existing `key drift`
+> failures (backend/voice rendered `.env` vs `.env.example`) that exist before this ticket and are unrelated
+> to the rebrand (the rebrand changes values, not keys). 88/90 checks pass before and after.
 
 ## Phased plan (each phase ends green + committed)
 

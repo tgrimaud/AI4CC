@@ -10,7 +10,7 @@
 services:
   backend:
     image: "${BACKEND_IMAGE:?set BACKEND_IMAGE to the registry path}:${IMAGE_TAG:-latest}"
-    container_name: voice-support-backend
+    container_name: ai4cc-backend
     restart: unless-stopped
     # Published on the host so the backend VIP (.11) can load-balance t03/t04.
     ports:
@@ -130,7 +130,7 @@ services:
   # (Ansible: docker compose exec ollama ollama pull) into the named volume.
   ollama:
     image: "ollama/ollama:${OLLAMA_IMAGE_TAG:-0.5.4}"
-    container_name: voice-support-ollama
+    container_name: ai4cc-ollama
     restart: unless-stopped
     # Internal only: reachable from the backend over the compose network, never published.
     expose:

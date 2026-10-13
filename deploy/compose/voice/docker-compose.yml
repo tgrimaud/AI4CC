@@ -12,7 +12,7 @@
 services:
   voice-bridge:
     image: "${VOICE_IMAGE:?set VOICE_IMAGE to the registry path}:${IMAGE_TAG:-latest}"
-    container_name: voice-support-bridge
+    container_name: ai4cc-bridge
     restart: unless-stopped
     # Published on the host. ONE routed port 8090 carries HTTP (UI + REST + WebRTC signaling)
     # AND the live-voice WebSocket at /ws (ADR-0047 / TASK-WEB-038), load-balanced by the voice
