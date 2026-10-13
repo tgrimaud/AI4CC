@@ -1,8 +1,9 @@
 # TASK-BE-072 — Make the billing clarify sub-types a configurable, enrichable list
 
 **Type:** Technical task (backend — conversation flow + clarify prompt + escalation context)
-**Status:** 🟢 Implemented + reviewed + QA GO, pending user validation + merge (2026-10-13) — **Sprint 17**
-(`feat/sprint-17-clarify-subtypes`), ticket branch `task/TASK-BE-072-configurable-billing-clarify-sub-types`.
+**Status:** 🟢 Merged into the sprint branch `feat/sprint-17-clarify-subtypes` (`--no-ff`, 2026-10-13);
+pending sprint closure (merge to `feat/restart-from-scratch`) on the user's request. **Sprint 17**,
+ticket branch `task/TASK-BE-072-configurable-billing-clarify-sub-types`. Review 93/100 (Pass), QA GO.
 Scope delivered = **config-driven sub-type steering** of the clarify question (FR/EN) + empty-list
 fallback + telemetry; the sub-type→escalation-tag detection is **deferred** (needs a classifier, see
 Follow-up). Backend suite **778 green** incl. ArchUnit + 7 billing-clarify BDD scenarios.
