@@ -23,6 +23,7 @@ sys.path.insert(0, str(VOICE_AGENT_ROOT))
 
 from pipecat.frames.frames import (  # noqa: E402
     BotStartedSpeakingFrame,
+    CancelFrame,
     EndFrame,
     Frame,
     InputAudioRawFrame,
@@ -474,6 +475,35 @@ class StreamingSttProcessorTest(unittest.IsolatedAsyncioTestCase):
         # THEN the pending turn is finalized on EndFrame
         self.assertEqual(sink.finals, ["bonjour"])
         self.assertEqual(processor.final_count, 1)
+
+    async def test_cancel_frame_discards_open_stt_session(self):
+        # GIVEN an in-flight streaming STT session (speech started, no end-of-turn yet)
+        session = FakeSession([PartialTranscript("bonjour")], "bonjour")
+        processor = _processor(FakeProvider(session))
+        sink = _Sink()
+        pipeline = Pipeline([_Source([_speech_frame()] * 3), processor, sink])
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            from pipecat.pipeline.runner import PipelineRunner
+            from pipecat.pipeline.task import PipelineParams, PipelineTask
+
+            task = PipelineTask(
+                pipeline, params=PipelineParams(), enable_rtvi=False,
+                enable_turn_tracking=False, cancel_on_idle_timeout=False,
+                check_dangling_tasks=False,
+            )
+            run = asyncio.create_task(PipelineRunner(handle_sigint=False).run(task))
+            # wait until the session is open (speech detected)
+            deadline = asyncio.get_event_loop().time() + 1.5
+            while processor._session is None and asyncio.get_event_loop().time() < deadline:
+                await asyncio.sleep(0.02)
+            self.assertIsNotNone(processor._session)  # precondition: a socket is in flight
+            # WHEN the call is cancelled abruptly (no graceful EndFrame)
+            await task.queue_frames([CancelFrame()])
+            await asyncio.wait_for(run, timeout=10)
+        # THEN the in-flight STT session is closed, never leaked (BUG-030)
+        self.assertTrue(session.closed)
+        self.assertIsNone(processor._session)
 
     async def test_barge_in_broadcasts_interruption_when_bot_speaking(self):
         # GIVEN the bot is speaking, then the customer speaks loudly and sustained
