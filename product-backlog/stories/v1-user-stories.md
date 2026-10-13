@@ -1301,5 +1301,21 @@ Feature: Clarifying questions for billing problems
   before answering/escalating? Decision owner: Product. Default assumption pending: 2.
 - OQ-043-b: Should the specific billing "sub-types" offered (increase / unrecognised charge / wrong
   amount / payment issue) be configurable per deployment? Decision owner: Product.
+  RESOLVED (2026-10-09, Product): yes, the sub-types are a per-deployment configurable list,
+  enriched over time. Confirmed starter set of 7 sub-types (grounded 1:1 in the eir billing KB
+  and the billing comparison engine causes), each a config entry carrying a stable id, FR+EN
+  label, an example phrasing to steer the single clarifying question, and an optional escalation
+  tag for the handoff context (no code change to add a sub-type):
+    1. Higher-than-usual bill / Facture plus élevée que d'habitude — annual price increase, proration.
+    2. Unrecognised charge or debit / Montant ou prélèvement non reconnu — "additional charges" article.
+    3. Service billed wrongly or unwanted / Service facturé en trop ou non souhaité — comparison SERVICE_ADDED.
+    4. Out-of-bundle usage (data/calls/SMS/roaming/international) / Hors-forfait — roaming, premium SMS,
+       international, bundle-allowances articles.
+    5. First bill or moving-home bill / Première facture ou facture de déménagement — proration.
+    6. Payment, direct-debit or refund issue / Problème de paiement, prélèvement ou remboursement —
+       payment-options, refunds, non-payment articles.
+    7. Promotion or discount ended / Promotion ou remise expirée — comparison end-of-discount / price rise.
+  Not yet ticketed (brainstorm consigned only; the current increment-C clarify prompt stays generic).
+  Making the list config-driven in the clarify prompt + handoff tag is a future task once prioritised.
 - OQ-043-c: Does the target C increment change the conversation contract enough to need an ADR
   (multi-turn diagnostic state)? Decision owner: Architecture.
