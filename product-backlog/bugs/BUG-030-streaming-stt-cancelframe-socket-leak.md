@@ -7,6 +7,10 @@
 `tests/test_streaming_stt_processor.py::test_cancel_frame_discards_open_stt_session` (asserts the
 in-flight session is closed and nulled on abrupt cancel). Full voice suite **733 unittest + 43 behave
 scenarios green**. Pending user validation + merge.
+
+**Adversarial review 95/100 (Pass, 2026-10-13)** — blocking fix applied: `_discard_session()` added to
+the `CancelFrame` branch (in-flight STT socket no longer leaked); Residual (accepted): none material.
+See `docs/qa/BUG-030-adversarial-review.md`.
 **Severity:** Medium (resource leak under reconnect storms; not a data/safety defect).
 **Component:** `voice-agent` — Python voice runtime (streaming STT).
 **Found by:** adversarial code review, 2026-10-13 (`docs/qa/2026-10-13-full-adversarial-review.md`).
