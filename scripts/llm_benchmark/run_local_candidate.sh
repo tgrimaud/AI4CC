@@ -23,7 +23,7 @@
 set -uo pipefail
 
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-JAR_GLOB="$REPO/backend/target/voice-support-backend-*.jar"
+JAR_GLOB="$REPO/backend/target/ai4cc-backend-*.jar"
 LABEL="${1:?usage: run_local_candidate.sh LABEL PROVIDER MODEL [KEY=VALUE ...]}"
 PROVIDER="${2:?missing PROVIDER (mistral-api|ollama|openai)}"
 MODEL="${3:?missing MODEL}"

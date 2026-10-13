@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Health", description = "Service liveness.")
 public class HealthController {
 
-    private static final String SERVICE_NAME = "voice-support-backend";
+    private static final String SERVICE_NAME = "ai4cc-backend";
 
     @GetMapping("/health")
     @Operation(summary = "Health check",
@@ -24,7 +24,7 @@ public class HealthController {
     @Schema(description = "Service liveness status.")
     public record HealthResponse(
             @Schema(description = "Liveness status.", example = "UP") String status,
-            @Schema(description = "Service name.", example = "voice-support-backend") String service) {
+            @Schema(description = "Service name.", example = "ai4cc-backend") String service) {
         static HealthResponse up(String service) {
             return new HealthResponse("UP", service);
         }

@@ -6,7 +6,7 @@
 set -u
 BUDGET="$1"; TAG="$2"
 ROOT="/Users/tgrimaud/Workspace/Code/BMad/voice-support-bot"
-JAR="$ROOT/backend/target/voice-support-backend-0.1.0-SNAPSHOT.jar"
+JAR="$ROOT/backend/target/ai4cc-backend-0.1.0-SNAPSHOT.jar"
 PORT=8081
 LOG="/tmp/be018_${TAG}.log"
 OUT="/tmp/be018_${TAG}.jsonl"

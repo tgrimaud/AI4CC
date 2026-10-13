@@ -12,9 +12,9 @@
     </parent>
 
     <groupId>com.ai4cc</groupId>
-    <artifactId>voice-support-backend</artifactId>
+    <artifactId>ai4cc-backend</artifactId>
     <version>0.1.0-SNAPSHOT</version>
-    <name>voice-support-backend</name>
+    <name>ai4cc-backend</name>
     <description>Voice Support Bot — conversation answer engine (RAG over the knowledge base)</description>
 
     <properties>
