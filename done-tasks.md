@@ -3,6 +3,30 @@
 > **Scope: Voice Support Bot only.** This is the ledger for all `voice-support-bot`
 > work. Do not log bot work in the workspace-root `BMad/done-tasks.md`.
 
+## 2026-10-13 — Sprint 18 closed (AI4CC rebranding, TASK-OPS-018)
+
+**Summary:**
+
+- **Sprint 18 closed** and merged into `feat/restart-from-scratch` (single ticket **TASK-OPS-018**).
+  **Not yet released/deployed** — a release tag + pilot redeploy under the new image names
+  `ghcr.io/tgrimaud/ai4cc-{backend,voice}` (and updated pilot `.env` image refs) is the remaining step.
+- **Project renamed Voice Support Bot → AI4CC** (programme name; pilot hosts `*-ai4cc-*`):
+  - Java package `com.voicesupport` → `com.ai4cc` across 373 files + Maven groupId + ArchUnit `<param>`;
+  - Maven coordinates / app / jar `voice-support-backend` → `ai4cc-backend`;
+  - container images `voice-support-{backend,voice}` → `ai4cc-{backend,voice}` + container names `ai4cc-*`
+    (CI `images.yml`, compose, Ansible group_vars + container-health gate + backup defaults);
+  - display rebrand (README, CLAUDE, AGENTS, product-backlog READMEs) + factual `com.ai4cc` / `tgrimaud/AI4CC`
+    references in docs; dir-name refs in CLAUDE/AGENTS/README and `scripts/be018_ab.sh` ROOT;
+  - GitHub repo `tgrimaud/V2V` → `tgrimaud/AI4CC` + local `origin` remote; local dir `voice-support-bot` → `ai4cc`.
+- **Preserved (live pilot infra identities, documented):** Postgres role/db `voicesupport`, host paths
+  `/opt/voice-support` & `/var/backups/voice-support/*`, Spring config-property prefix `voice-support.*`.
+  Renaming them needs a coordinated infra migration (separate ticket if desired).
+- **Verification:** `mvn clean test` **766 green incl. ArchUnit** (asserts the `com.ai4cc.*` layering via the
+  renamed params); `qa-validate-ansible.sh` 88/90 (the 2 `key drift` fails are pre-existing, unrelated).
+  Adversarial review **92/100 (Pass)** — `docs/qa/task-ops-018-adversarial-review.md`.
+- The `V2V` acronym (voice-to-voice media plane) is intentionally kept where it is a technical term; only the
+  `tgrimaud/V2V` repo identity was renamed.
+
 ## 2026-10-13 — Sprint 17 closed (configurable billing clarify sub-types, OQ-043-b)
 
 **Summary:**

@@ -2,9 +2,9 @@
 
 **AI4CC** (formerly *Voice Support Bot*) — V2V (voice-to-voice) RAG voice agent for Telecom/ISP support.
 
-> This repository (`voice-support-bot`) is a **separate git repository** (default branch `main`) nested in the `BMad` workspace. Bot commits belong here, not in the `BMad` repository.
+> This repository (`ai4cc`) is a **separate git repository** (default branch `main`) nested in the `BMad` workspace. Bot commits belong here, not in the `BMad` repository.
 
-> Self-contained guidance: when working in this repo, use **only** this repository's `CLAUDE.md` / `AGENTS.md` and the skills under `voice-support-bot/.cursor/skills/`. Do **not** apply the workspace-root `BMad/claude.md`, `BMad/agents.md`, or root `.cursor/skills/` (those govern `cursor-usage-dashboard/`).
+> Self-contained guidance: when working in this repo, use **only** this repository's `CLAUDE.md` / `AGENTS.md` and the skills under `ai4cc/.cursor/skills/`. Do **not** apply the workspace-root `BMad/claude.md`, `BMad/agents.md`, or root `.cursor/skills/` (those govern `cursor-usage-dashboard/`).
 
 > Branch note: `feat/restart-from-scratch` began by removing the previous stack
 > (preserved on `main` as backup/reference), then **rebuilt from scratch**. Through

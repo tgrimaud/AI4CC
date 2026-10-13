@@ -143,6 +143,6 @@ The recommended build order is:
 
 ## Git Note
 
-`voice-support-bot` is a separate Git repository nested inside the broader
+`ai4cc` is a separate Git repository nested inside the broader
 `BMad` workspace. Work for this project must be committed in this repository,
 not in the parent workspace.
