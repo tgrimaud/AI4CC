@@ -18,8 +18,11 @@
 > `VOICE_GENESYS=on`, endpoint `GET /genesys/audiohook` on the ADR-0047 `:8090`; app-layer
 > Step 0b self-test PASSED) with by-reference escalation handoff — but the **live-org** legs
 > (real Genesys tenant reachability/TLS trust, native barge-in/EOT, Architect fail-safe) and
-> **degraded modes** (TASK-WEB-044) are still pending. Still target-only: billing/BSS,
-> invoice comparison, and telephony (live-org Genesys still to prove).
+> **degraded modes** (TASK-WEB-044) are still pending. **Billing explanation is shipped**
+> (`v0.9.4`+): channel-provided identity, read-only BSS, invoice PDF extraction +
+> deterministic comparison, billing routing + bounded clarify on `/converse` (ADR-0055 /
+> ADR-0056, configurable sub-types TASK-BE-072). Still target-only: **telephony** (Twilio
+> phone Voice2Voice) and the Genesys **live-org** legs (still to prove).
 
 > Delivery rule: no development starts without a ticket. Branching uses a **two-level
 > model** (decision 2026-07-29): one sprint branch `feat/sprint-NN-short-theme` per sprint,
@@ -109,7 +112,7 @@ present on this branch: the standalone React `frontend/` and the legacy `agent/b
 
 ## Two distinct AI models (DO NOT confuse)
 
-- **LLM / chat** = writes the response. Provider configurable via `voice-support.llm.provider`: **`openai` (`gpt-5`) is the default** since ADR-0051 (TASK-BE-050); `mistral-api` (`mistral-small-latest`) and `ollama` (`llama3.1:8b`) are selectable alternatives. Built manually in **`LlmConfig`** (chat auto-configurations — Mistral/Ollama/OpenAI — are excluded in `VoiceSupportApplication`). Envs relying on the default must set `OPENAI_API_KEY` (+ `OPENAI_BASE_URL` for the Azure Foundry endpoint); the **pilot deploy pins `LLM_PROVIDER=mistral-api`** until the ADR-0045 benchmark.
+- **LLM / chat** = writes the response. Provider configurable via `voice-support.llm.provider`: **`openai` (`gpt-5`) is the default** since ADR-0051 (TASK-BE-050); `mistral-api` (`mistral-small-latest`) and `ollama` (`llama3.1:8b`) are selectable alternatives. Built manually in **`LlmConfig`** (chat auto-configurations — Mistral/Ollama/OpenAI — are excluded in `VoiceSupportApplication`). Envs relying on the default must set `OPENAI_API_KEY` (+ `OPENAI_BASE_URL` for the Azure Foundry endpoint); the **pilot deploy now uses `llm_provider: openai`** (`deploy/ansible/group_vars/backend.yml`) — Mistral/Ollama remain selectable for the ADR-0045 benchmark.
 - **Embedding** = local **Ollama** (`nomic-embed-text`, **768 dim**) — vectorizes chunks and queries. `MistralAiEmbeddingAutoConfiguration` is **excluded** -> embeddings are always Ollama. Recorded decision: **stay on Ollama** for embeddings (local/free).
 
 ## Architecture (backend)
