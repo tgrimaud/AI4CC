@@ -1,4 +1,4 @@
-# Guidance for AI agents — Voice Support Bot
+# Guidance for AI agents — AI4CC (formerly Voice Support Bot)
 
 ## Repo & git
 

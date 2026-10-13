@@ -2586,7 +2586,7 @@ and enabling `source=eir`.
 
 **Summary:**
 
-- New pure bounded context `com.voicesupport.billing` (hexagonal/Hive, no Spring), mirroring the real
+- New pure bounded context `com.ai4cc.billing` (hexagonal/Hive, no Spring), mirroring the real
   BSS hierarchy `invoice → invoice_section → invoice_group → invoice_item` with rolled-up amounts at
   each level (`docs/integrations/galaxion/bss-billing-data-model.md`).
 - Value objects: `Money` (integer minor units = **cents**, exact/same-currency arithmetic, overflow

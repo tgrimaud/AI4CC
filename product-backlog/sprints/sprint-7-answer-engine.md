@@ -86,7 +86,7 @@ Decomposition: **Hive-light modular monolith, two context-first bounded contexts
 following the `software-architect` skill's Layout B (package-by-context first).
 
 ```text
-com.voicesupport
+com.ai4cc
 ├── VoiceSupportApplication                 # Spring Boot bootstrap (root)
 │
 ├── knowledge/                              # BOUNDED CONTEXT — ingestion + retrieval (full hexagon)
@@ -218,7 +218,7 @@ team standard). No engine code in this ticket — it unblocks TASK-BE-002.
 branch; reference implementation lives on `main`).
 
 **Scope:**
-- Spring Boot 3.4.x, **OpenJDK 17**, Maven, package `com.voicesupport`, **context-first
+- Spring Boot 3.4.x, **OpenJDK 17**, Maven, package `com.ai4cc`, **context-first
   hexagonal layout per ADR-0027** (two bounded contexts `knowledge` /
   `conversation`, each a full hexagon; `shared/` for technical cross-cutting only).
   Pure domain, ports `in`/`out`; **per-context bean wiring** (`KnowledgeConfig`,
@@ -752,7 +752,7 @@ for runtime work; DEC-010 / ADR-0010 / ADR-0018).
 - Exposed via `spring-boot-starter-actuator` (`health,info,metrics`); no exporter for
   the pilot — a Micrometer Tracing→OTel bridge is the documented upgrade path to spans.
 - `ContextBoundaryTest` extended so the knowledge seam may depend on context-agnostic
-  `com.voicesupport.shared..` (`sharedMustNotDependOnAnyContext` still forbids the reverse).
+  `com.ai4cc.shared..` (`sharedMustNotDependOnAnyContext` still forbids the reverse).
 - Tests: `CorrelationIdFilterTest`, `BackendTelemetryTest`, `ConverseController` header
   echo; adapter/config wiring updated. **`mvn test` 130 green.**
 - **Live-verified** (pgvector 5433 + Ollama + Mistral, warm): one correlation id

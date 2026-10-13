@@ -89,7 +89,7 @@ the default for local/dev and tests.
 
 ### 4. CI/CD: GitHub Actions build/test/image + Ansible/SSH deploy
 
-- **GitHub Actions** (repo `tgrimaud/V2V`) runs the test gates (`mvn test`,
+- **GitHub Actions** (repo `tgrimaud/AI4CC`) runs the test gates (`mvn test`,
   voice-agent `unittest` + `behave`), builds both images, and pushes them to a
   container registry with an immutable **version tag** (release tag / git SHA).
 - **Ansible over SSH** deploys to the VMs: render the per-tier `.env` from

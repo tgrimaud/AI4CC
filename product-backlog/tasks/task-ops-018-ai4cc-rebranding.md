@@ -12,12 +12,12 @@
 
 | Area | From | To | Notes |
 |------|------|----|-------|
-| Java package | `com.voicesupport` | `com.ai4cc` | 373 files; move `com/voicesupport/**` dirs + `package`/`import` + ArchUnit `<param>` + base-package scans + logback logger |
-| Maven coordinates | `com.voicesupport` / `voice-support-backend` | `com.ai4cc` / `ai4cc-backend` | `pom.xml` groupId/artifactId/name |
+| Java package | `com.ai4cc` | `com.ai4cc` | 373 files; move `com/voicesupport/**` dirs + `package`/`import` + ArchUnit `<param>` + base-package scans + logback logger |
+| Maven coordinates | `com.ai4cc` / `voice-support-backend` | `com.ai4cc` / `ai4cc-backend` | `pom.xml` groupId/artifactId/name |
 | Container images | `ghcr.io/tgrimaud/voice-support-{backend,voice}` | `ghcr.io/tgrimaud/ai4cc-{backend,voice}` | CI workflows + Ansible + pilot `.env` |
 | Container/app names | `voice-support-backend` / `voice-support-bridge` / app display name | `ai4cc-*` | compose, healthcheck names, Spring `spring.application.name` |
 | Docs / README display name | "Voice Support Bot" / `voice-support-bot` | "AI4CC" | human-facing titles; keep historical references where they document the past |
-| GitHub repo | `tgrimaud/V2V` | `tgrimaud/AI4CC` | `gh repo rename` + update local `origin` remote |
+| GitHub repo | `tgrimaud/AI4CC` | `tgrimaud/AI4CC` | `gh repo rename` + update local `origin` remote |
 | Local directory | `voice-support-bot/` | `ai4cc/` | **last step**, session-sensitive (absolute tool paths) — do after everything else and reopen the workspace |
 
 ## Must NOT rename (preserved infra identities)
@@ -43,7 +43,7 @@ DB role). A later, separately-ticketed migration can align them during a mainten
 
 ## Phased plan (each phase ends green + committed)
 
-1. **Java package** `com.voicesupport` → `com.ai4cc` (git mv dirs + source + ArchUnit params + logback +
+1. **Java package** `com.ai4cc` → `com.ai4cc` (git mv dirs + source + ArchUnit params + logback +
    base-package scans). `mvn test` green incl. ArchUnit.
 2. **Maven coordinates** groupId/artifactId/name. `mvn test` green.
 3. **Container images + app/container names + CI + Ansible + compose** (NOT DB creds). Render-check Ansible
@@ -55,7 +55,7 @@ DB role). A later, separately-ticketed migration can align them during a mainten
 ## Acceptance criteria
 
 - Backend `mvn test` green incl. ArchUnit after the package + coordinates rename.
-- No `com.voicesupport` left in source; `com.ai4cc` is the only backend package root.
+- No `com.ai4cc` left in source; `com.ai4cc` is the only backend package root.
 - Images build/push under `ghcr.io/tgrimaud/ai4cc-*` (verified at the next release/deploy).
 - The Postgres role/db `voicesupport` is unchanged (no connection regression).
 - Docs/README present the project as AI4CC; git remote points at the renamed repo.

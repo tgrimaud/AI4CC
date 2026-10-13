@@ -1,6 +1,9 @@
-# Voice Support Bot
+# AI4CC
 
-This branch is a **from-scratch restart branch** for the Voice Support Bot V1.
+> **AI4CC** (formerly *Voice Support Bot*) — V2V (voice-to-voice) RAG voice agent for
+> Telecom/ISP support. The project was renamed to AI4CC in Sprint 18 (TASK-OPS-018).
+
+This branch is a **from-scratch restart branch** for the AI4CC V1.
 
 The previous implementation remains preserved on `main` as a backup/reference.
 The restart began by removing the old stack and rebuilding from the validated

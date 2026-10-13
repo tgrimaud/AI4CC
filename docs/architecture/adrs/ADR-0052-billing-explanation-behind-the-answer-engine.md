@@ -18,7 +18,7 @@ Through TASK-BE-038…044 the billing context can, on fixtures, resolve a custom
 list comparable invoices, compare two invoices deterministically, and judge whether the
 result is explainable. None of it is connected to the answer engine yet.
 
-The answer engine (`com.voicesupport.conversation`, verified in code) has hard constraints
+The answer engine (`com.ai4cc.conversation`, verified in code) has hard constraints
 that shape the integration:
 
 - **No runtime intent classifier** (BUG-007): `/converse` passes `domain=null`; there is no
