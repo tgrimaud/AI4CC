@@ -37,9 +37,19 @@ DB role). A later, separately-ticketed migration can align them during a mainten
 - **Host filesystem paths** `/opt/voice-support` (`compose_root`) and `/var/backups/voice-support/{postgres,redis}`:
   these point at the pilot's existing compose stacks (with vault-rendered `.env`) and existing backups.
   Renaming them orphans the live stacks/backups.
-- **Spring config property prefix `voice-support.*`** (`application.yml` keys, `@ConfigurationProperties`/`@Value`,
-  Ansible `java_opts -Dvoice-support.embedding.timeout-ms`): internal, non-user-facing config namespace; a
-  rename is a deep backend refactor with no branding value.
+- **Spring config property prefix `voice-support.*`** (`application.yml` root key line ~147 + nested keys,
+  `@ConfigurationProperties`/`@Value`, Ansible `java_opts -Dvoice-support.embedding.timeout-ms`): internal,
+  non-user-facing config namespace; a rename is a deep backend refactor with no branding value.
+- **Liquibase changeset `author: voice-support`** (`db/changelog/changes/001-vector-store.yaml`,
+  `002-kb-source-state.yaml`, `bootstrap/db.changelog-bootstrap.yaml`): Liquibase identifies an applied
+  changeset by `(id, author, filename)` in `DATABASECHANGELOG`. Changing the author on changesets already
+  applied on the pilot DB would cause a validation/checksum mismatch and risk a re-run. Keep as-is.
+- **Ansible backup job names** `"voice-support redis backup"` / `"voice-support postgres backup"`
+  (`roles/compose_tier/tasks/backup.yml`): systemd timer identities already installed on the pilot host;
+  renaming creates new timers and orphans the old ones.
+- **Genesys HMAC `--key-id` default `voice-support-pilot`** (`voice-agent/scripts/genesys_local_client.py`):
+  the key-id must match what the Genesys org / pilot expects for the AudioHook auth handshake; the test-client
+  default is left aligned with the deployed contract (the real secret is `vault_genesys_audiohook_api_key`).
 - Any secret/vault value.
 
 > **Pre-existing (out of scope):** `deploy/ansible/qa-validate-ansible.sh` reports 2 pre-existing `key drift`

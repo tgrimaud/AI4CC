@@ -19,8 +19,12 @@
     references in docs; dir-name refs in CLAUDE/AGENTS/README and `scripts/be018_ab.sh` ROOT;
   - GitHub repo `tgrimaud/V2V` → `tgrimaud/AI4CC` + local `origin` remote; local dir `voice-support-bot` → `ai4cc`.
 - **Preserved (live pilot infra identities, documented):** Postgres role/db `voicesupport`, host paths
-  `/opt/voice-support` & `/var/backups/voice-support/*`, Spring config-property prefix `voice-support.*`.
-  Renaming them needs a coordinated infra migration (separate ticket if desired).
+  `/opt/voice-support` & `/var/backups/voice-support/*`, Spring config-property prefix `voice-support.*`,
+  **Liquibase changeset `author: voice-support`** (changing it on applied changesets breaks the pilot
+  `DATABASECHANGELOG` identity), **Ansible backup job names** (`"voice-support {redis,postgres} backup"`
+  systemd timers on the pilot host), and the **Genesys HMAC `--key-id` default `voice-support-pilot`**
+  (must match the deployed AudioHook auth contract). Renaming any of these needs a coordinated infra
+  migration (separate ticket if desired).
 - **Verification:** `mvn clean test` **766 green incl. ArchUnit** (asserts the `com.ai4cc.*` layering via the
   renamed params); `qa-validate-ansible.sh` 88/90 (the 2 `key drift` fails are pre-existing, unrelated).
   Adversarial review **92/100 (Pass)** — `docs/qa/task-ops-018-adversarial-review.md`.
