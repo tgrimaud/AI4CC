@@ -3,9 +3,9 @@
 **Type:** Technical task (cross-cutting: backend package, build, container images, deploy, docs, repo)
 **Status:** ✅ Done (2026-10-13) — **Sprint 18** (`feat/sprint-18-ai4cc-rebrand`). Code phases 1–4 done
 (`mvn clean test` 766 green incl. ArchUnit). Phase 6 local dir `voice-support-bot` → `ai4cc` done. Phase 5
-GitHub repo rename `tgrimaud/V2V` → `tgrimaud/AI4CC` **pending `gh` auth / GitHub UI** (then update the local
-`origin` remote — GitHub redirects the old URL). Release tag + pilot redeploy under `ghcr.io/tgrimaud/ai4cc-*`
-remains the operational closing step. **Adversarial review 92/100 (Pass, 2026-10-13)** — no blocking finding;
+GitHub repo renamed `tgrimaud/V2V` → `tgrimaud/AI4CC` (via UI, 2026-10-13) and the local `origin` remote
+updated to `git@github.com:tgrimaud/AI4CC.git` (verified via `git ls-remote`). Release tag + pilot redeploy
+under `ghcr.io/tgrimaud/ai4cc-*` remains the only operational closing step. **Adversarial review 92/100 (Pass, 2026-10-13)** — no blocking finding;
 preserved infra identities (DB role `voicesupport`, host paths, `voice-support.*` config prefix) documented.
 Review: `docs/qa/task-ops-018-adversarial-review.md`.
 **Priority:** Medium
