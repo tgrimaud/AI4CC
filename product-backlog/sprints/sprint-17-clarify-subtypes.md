@@ -34,7 +34,9 @@ amount-free question. Product confirmed a starter set of **7** sub-types (2026-1
 
 ## Status
 
-🟡 In progress (opened 2026-10-13). Branch `feat/sprint-17-clarify-subtypes` off `feat/restart-from-scratch`;
-ticket branch `task/TASK-BE-072-configurable-billing-clarify-sub-types`. TASK-BE-072 implemented
-(suite 778 green incl. ArchUnit), adversarial review 93/100 (Pass), QA GO (functional), merged into the
-sprint branch (`--no-ff`). Pending sprint closure (merge to `feat/restart-from-scratch`) on the user's request.
+✅ Done (closed 2026-10-13) — merged into `feat/restart-from-scratch` (fast-forward). Single ticket
+**TASK-BE-072** delivered config-driven billing clarify sub-type steering (OQ-043-b): domain
+`BillingClarifyTopic` + `BillingClarifyProperties`, 7 starter sub-types in `application.yml`, FR/EN,
+empty-list fallback to the generic prompt, `sub_types` telemetry. Suite 778 green incl. ArchUnit;
+adversarial review 93/100 (Pass); QA GO (functional). Escalation-tag detection deferred (follow-up on
+TASK-BE-072). Not yet released/deployed.

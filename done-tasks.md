@@ -3,6 +3,30 @@
 > **Scope: Voice Support Bot only.** This is the ledger for all `voice-support-bot`
 > work. Do not log bot work in the workspace-root `BMad/done-tasks.md`.
 
+## 2026-10-13 — Sprint 17 closed (configurable billing clarify sub-types, OQ-043-b)
+
+**Summary:**
+
+- **Sprint 17 closed** and fast-forward-merged into `feat/restart-from-scratch` (single ticket).
+  **Not yet released/deployed** (a full AI4CC rebranding is planned next and will carry its own release).
+- **OQ-043-b resolved** (Product, 2026-10-09): the billing clarify sub-types are a per-deployment,
+  enrichable list; a starter set of **7** was confirmed (higher-than-usual / unrecognised-charge /
+  service-billed-wrong / out-of-bundle / first-or-moving-bill / payment-or-refund / promo-ended).
+- **TASK-BE-072 (config-driven sub-type steering):** new domain `BillingClarifyTopic(id, fr, en)`;
+  `ClarifyingQuestionGeneratorPort` gained a `subTypeHints` arg; the shared
+  `AbstractChatClientAnswerAdapter` appends a language-owned `AnswerLanguage.clarifySubTypeDirective(hints)`
+  **before** the recency-last clarify directive (empty hints ⇒ the generic TASK-BE-071 prompt, regression-safe).
+  `BillingDiagnosticConversationService` resolves the configured topics to hints in the session language
+  and records the offered count on the `voice_support.billing_clarify` meter (`sub_types` tag).
+  `BillingClarifyProperties` (`@ConfigurationProperties`, first use in the backend) binds
+  `voice-support.conversation.billing-clarify.sub-types`; the 7 starter sub-types ship as the
+  `application.yml` default.
+- **Deferred (follow-up on TASK-BE-072):** detecting *which* sub-type the customer meant and carrying its
+  tag into the ADR-0019 escalation context (needs a deterministic classifier + escalation-assembly change).
+- **Quality:** backend suite **778 green** incl. ArchUnit + 7 billing-clarify BDD scenarios; adversarial
+  review **93/100 (Pass)** (`docs/qa/task-be-072-adversarial-review.md`); QA GO (functional)
+  (`docs/qa/task-be-072-sub-types-qa-report.md`). ADR-0056 updated with the sub-type-steering amendment.
+
 ## 2026-10-12 — Sprint 16 closed (US-043 billing clarify) + release v0.9.6
 
 **Summary:**
