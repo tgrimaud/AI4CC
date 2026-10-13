@@ -45,11 +45,11 @@ jobs:
           - name: backend
             context: backend
             dockerfile: backend/Dockerfile
-            image: voice-support-backend
+            image: ai4cc-backend
           - name: voice
             context: voice-agent
             dockerfile: voice-agent/Dockerfile
-            image: voice-support-voice
+            image: ai4cc-voice
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 

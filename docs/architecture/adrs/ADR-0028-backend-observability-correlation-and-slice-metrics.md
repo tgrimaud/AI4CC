@@ -80,7 +80,7 @@ logged (existing `[CONVERSE]` behavior, unchanged).
   controllers, servlet filter) and in cross-cutting `shared/observability`; the pure
   domain and application layers stay free of transport/metrics concerns (hexagonal
   purity preserved). `ContextBoundaryTest` was extended to let the knowledge seam
-  depend on the context-agnostic `com.voicesupport.shared..` package (like it already
+  depend on the context-agnostic `com.ai4cc.shared..` package (like it already
   may on `org.springframework..`); `sharedMustNotDependOnAnyContext` still forbids the
   reverse, so no boundary is weakened.
 - The same `BackendTelemetry` call sites can be promoted to **distributed spans**

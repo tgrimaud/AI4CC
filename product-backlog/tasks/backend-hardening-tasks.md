@@ -405,8 +405,8 @@ weak tests are surfaced before they ship.
 - Add `pitest-maven` + `pitest-junit5-plugin` to `backend/pom.xml` (test-only, not a runtime
   dep). Pin a version that runs under the local JDK (see JDK note).
 - `targetClasses` scoped to the deterministic domain first (not the whole app):
-  `com.voicesupport.conversation.domain.service.*` (guardrails, language, segmenter) +
-  `com.voicesupport.knowledge.infrastructure.adapter.out.classifier.*` (audience classifier).
+  `com.ai4cc.conversation.domain.service.*` (guardrails, language, segmenter) +
+  `com.ai4cc.knowledge.infrastructure.adapter.out.classifier.*` (audience classifier).
   Widen later (comparison/money when they land).
 - `targetTests` = the matching `*Test` classes; exclude Cucumber/ArchUnit suites from the
   mutation run (they are not fast unit oracles).
@@ -1149,7 +1149,7 @@ idle TTL, graceful degradation to empty history on outage).
 ### Implementation notes (2026-08-05)
 
 - **Log sanitization.** `RedisConversationMemoryAdapter` imports
-  `com.voicesupport.shared.observability.CorrelationId` (allowed cross-cutting shared util per
+  `com.ai4cc.shared.observability.CorrelationId` (allowed cross-cutting shared util per
   `ContextBoundaryTest`) and adds a private `forLog(conversationId)` = `CorrelationId.sanitize`.
   All three `log.warn(...)` calls now pass `forLog(conversationId)`; the throwable arg is
   unchanged so the stack is still logged server-side.

@@ -13,7 +13,7 @@
 
 ## 1. What already exists (verified in code)
 
-Answer engine (`com.voicesupport.conversation`), from the flow map:
+Answer engine (`com.ai4cc.conversation`), from the flow map:
 
 - `POST /converse` → `ConversationService` (memory + `answerQuestionUseCase.answer(transcript, **domain=null**, …)`) → `AnswerService` → `RetrievalGroundingService.ground(…)` → `AnswerGeneratorPort.generate(question, evidence, history, language)` → `OutputGuardrail.check(text, evidence, language)`.
 - `POST /converse-stream` → `StreamingConversationService` → same grounding, then `GuardedSentenceEmitter` vets **each sentence** before emitting (SSE `chunk`/`done`/`error`).
@@ -23,7 +23,7 @@ Answer engine (`com.voicesupport.conversation`), from the flow map:
 - `OutputGuardrail` (DEC-002): every currency amount in the answer **must** appear in the concatenated evidence text, else `UNGROUNDED` → fallback.
 - Escalation: no `EscalationDetector`; `EscalationReason.fromVerdict` maps only `LOW_CONFIDENCE`/`UNGROUNDED`; `PrepareEscalationHandoffUseCase` builds the by-reference handoff at the controller.
 
-Billing chain (`com.voicesupport.billing`, all merged): `ResolveCustomerIdentityUseCase`, `RetrieveComparableInvoicesUseCase`, `CompareInvoicesUseCase`, `AssessComparisonReadinessUseCase`, `InvoicePdfExtractorPort` (fallback), all on `customer-eir-*` fixtures.
+Billing chain (`com.ai4cc.billing`, all merged): `ResolveCustomerIdentityUseCase`, `RetrieveComparableInvoicesUseCase`, `CompareInvoicesUseCase`, `AssessComparisonReadinessUseCase`, `InvoicePdfExtractorPort` (fallback), all on `customer-eir-*` fixtures.
 
 ---
 

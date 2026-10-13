@@ -10,12 +10,12 @@
 # never the crontab). The Ansible cron sources a 0600 env file (redis-backup.env).
 #
 # Usage:  REDISCLI_AUTH=... ./redis-backup.sh
-# Env:    REDIS_CONTAINER (default voice-support-redis), BACKUP_DIR (default
+# Env:    REDIS_CONTAINER (default ai4cc-redis), BACKUP_DIR (default
 #         /var/backups/voice-support/redis), BACKUP_KEEP (default 168 snapshots),
 #         BACKUP_REMOTE (optional rsync/scp target, e.g. user@host:/path), REDISCLI_AUTH.
 set -euo pipefail
 
-REDIS_CONTAINER="${REDIS_CONTAINER:-voice-support-redis}"
+REDIS_CONTAINER="${REDIS_CONTAINER:-ai4cc-redis}"
 BACKUP_DIR="${BACKUP_DIR:-/var/backups/voice-support/redis}"
 BACKUP_KEEP="${BACKUP_KEEP:-168}"
 BACKUP_REMOTE="${BACKUP_REMOTE:-}"

@@ -1,6 +1,6 @@
-# Voice Support Bot - Product Backlog
+# AI4CC - Product Backlog
 
-This folder is the local product backlog for Voice Support Bot. It keeps the
+This folder is the local product backlog for AI4CC (formerly Voice Support Bot). It keeps the
 V1 epics, user stories, product decisions and open questions in Markdown before
 any future Jira migration.
 

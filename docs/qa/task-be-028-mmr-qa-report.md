@@ -105,14 +105,14 @@ cd backend && mvn -o package -DskipTests
 
 # Arm A — shipped default (MMR off): expect recall@8=0.90 stability=0.79, 0 MMR invocations
 java -jar target/voice-support-backend-0.1.0-SNAPSHOT.jar --server.port=8081 \
-  --logging.level.com.voicesupport.knowledge.infrastructure.adapter.out.observability=DEBUG
+  --logging.level.com.ai4cc.knowledge.infrastructure.adapter.out.observability=DEBUG
 python3 scripts/retrieval_eval/run_eval.py --base-url http://localhost:8081 --top-k 8 \
   --label qa-default-2026-08-13
 
 # Arm B — MMR on lambda=0.9: expect recall@8=0.90 (neutral), 27 MMR invocations
 KB_RETRIEVAL_MMR_ENABLED=true KB_RETRIEVAL_MMR_LAMBDA=0.9 KB_RETRIEVAL_MMR_FETCH_MULTIPLIER=3 \
   java -jar target/voice-support-backend-0.1.0-SNAPSHOT.jar --server.port=8081 \
-  --logging.level.com.voicesupport.knowledge.infrastructure.adapter.out.observability=DEBUG
+  --logging.level.com.ai4cc.knowledge.infrastructure.adapter.out.observability=DEBUG
 python3 scripts/retrieval_eval/run_eval.py --base-url http://localhost:8081 --top-k 8 \
   --label qa-mmron-l09-2026-08-13
 ```

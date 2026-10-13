@@ -8,7 +8,7 @@
 services:
   redis:
     image: "redis:${REDIS_IMAGE_TAG:-7-alpine}"
-    container_name: voice-support-redis
+    container_name: ai4cc-redis
     restart: unless-stopped
     # Reachable from the backend tier over the tenant subnet.
     ports:

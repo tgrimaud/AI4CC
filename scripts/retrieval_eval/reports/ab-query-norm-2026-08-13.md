@@ -58,13 +58,13 @@ cd backend && mvn -o package -DskipTests
 # OFF
 KB_RETRIEVAL_QUERY_NORMALIZATION_ENABLED=false \
   java -jar target/voice-support-backend-0.1.0-SNAPSHOT.jar --server.port=8081 \
-  --logging.level.com.voicesupport.knowledge.infrastructure.adapter.out.observability=DEBUG
+  --logging.level.com.ai4cc.knowledge.infrastructure.adapter.out.observability=DEBUG
 python3 scripts/retrieval_eval/run_eval.py --base-url http://localhost:8081 --top-k 8 \
   --label be029-normoff-2026-08-13
 # ON
 KB_RETRIEVAL_QUERY_NORMALIZATION_ENABLED=true \
   java -jar target/voice-support-backend-0.1.0-SNAPSHOT.jar --server.port=8081 \
-  --logging.level.com.voicesupport.knowledge.infrastructure.adapter.out.observability=DEBUG
+  --logging.level.com.ai4cc.knowledge.infrastructure.adapter.out.observability=DEBUG
 python3 scripts/retrieval_eval/run_eval.py --base-url http://localhost:8081 --top-k 8 \
   --label be029-normon-2026-08-13
 ```

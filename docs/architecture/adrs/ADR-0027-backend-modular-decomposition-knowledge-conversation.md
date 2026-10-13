@@ -38,7 +38,7 @@ packages, each a full hexagon (context-first layout, per the `software-architect
 skill's Layout B):**
 
 ```text
-com.voicesupport
+com.ai4cc
 ├── VoiceSupportApplication            # Spring Boot bootstrap (root)
 ├── knowledge/                         # bounded context — full hexagon
 │   ├── domain/ (model, service, port/in, port/out, exception)

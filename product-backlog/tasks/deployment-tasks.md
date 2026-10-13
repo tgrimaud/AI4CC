@@ -602,7 +602,7 @@ Actions run (PR gate + tag publish) verified on the first PR/tag post-merge. ✅
 
 ### Objective
 
-Automate quality gates and image builds on `tgrimaud/V2V` with GitHub Actions,
+Automate quality gates and image builds on `tgrimaud/AI4CC` with GitHub Actions,
 publishing versioned images to the container registry. (GitHub Actions is native
 to the repo; no Cursor GitHub App is required for CI.)
 

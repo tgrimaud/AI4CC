@@ -1,0 +1,33 @@
+package com.ai4cc.knowledge.fake;
+
+import com.ai4cc.knowledge.domain.model.valueobject.KnowledgeChunk;
+import com.ai4cc.knowledge.domain.port.out.VectorSearchPort;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class FakeVectorSearchPort implements VectorSearchPort {
+
+    private final List<KnowledgeChunk> results = new ArrayList<>();
+
+    public String lastQuery;
+    public String lastDomain;
+    public String lastLanguage;
+    public int lastTopK;
+    public int callCount;
+
+    public void setResults(List<KnowledgeChunk> chunks) {
+        this.results.clear();
+        this.results.addAll(chunks);
+    }
+
+    @Override
+    public List<KnowledgeChunk> search(String query, String domain, String language, int topK) {
+        this.lastQuery = query;
+        this.lastDomain = domain;
+        this.lastLanguage = language;
+        this.lastTopK = topK;
+        this.callCount++;
+        return results.stream().limit(topK).toList();
+    }
+}

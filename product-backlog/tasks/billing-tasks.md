@@ -29,7 +29,7 @@ real BSS hierarchy `invoice → invoice_section → invoice_group → invoice_it
 amounts at each level (`bss-billing-data-model.md`), so the future `billing-api` adapter
 and the PDF extractor both map onto the same shape (ADR-0004/0005).
 
-This is a **new bounded context** `com.voicesupport.billing` following the Hive/
+This is a **new bounded context** `com.ai4cc.billing` following the Hive/
 hexagonal layout used by `conversation` and `knowledge` (pure domain, no Spring).
 
 ### Scope

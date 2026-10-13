@@ -4,12 +4,12 @@
 # docs/operations/backup-restore.md for the full runbook (RPO/RTO).
 #
 # Usage:  ./redis-restore.sh /var/backups/voice-support/redis/redis-<ts>.tar.gz
-# Env:    REDIS_CONTAINER (default voice-support-redis),
+# Env:    REDIS_CONTAINER (default ai4cc-redis),
 #         COMPOSE_DIR (compose stack dir; default /opt/voice-support/redis).
 set -euo pipefail
 
 ARCHIVE="${1:-}"
-REDIS_CONTAINER="${REDIS_CONTAINER:-voice-support-redis}"
+REDIS_CONTAINER="${REDIS_CONTAINER:-ai4cc-redis}"
 COMPOSE_DIR="${COMPOSE_DIR:-/opt/voice-support/redis}"
 
 log() { echo "[redis-restore] $*"; }

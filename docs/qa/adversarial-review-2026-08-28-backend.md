@@ -4,7 +4,7 @@
 - **Reviewer skill:** `.cursor/skills/adversarial-code-review` (+ `code-guidelines`, `test-guidelines`, `java-backend-developer`)
 - **Repo:** `voice-support-bot` (separate git repo)
 - **Branch:** `feat/sprint-12-external-voice-websocket` (read-only; no branch switch, no edits, no commit)
-- **Target:** everything under `backend/` (`com.voicesupport` conversation engine + knowledge context + shared)
+- **Target:** everything under `backend/` (`com.ai4cc` conversation engine + knowledge context + shared)
 
 ---
 

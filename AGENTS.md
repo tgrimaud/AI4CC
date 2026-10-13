@@ -1,10 +1,10 @@
-# Guidance for AI agents — Voice Support Bot
+# Guidance for AI agents — AI4CC (formerly Voice Support Bot)
 
 ## Repo & git
 
-- `voice-support-bot` is a **separate git repository** (default branch `main`) nested in the `BMad` workspace (which is another repository). Commit/push bot work **in this repository**, not in `BMad`.
-- **Ledgers and docs live in THIS repo.** When working on the Voice Support Bot, the `done-tasks.md` you append to is **`voice-support-bot/done-tasks.md`** — never the workspace-root `BMad/done-tasks.md` (that one logs only the `cursor-usage-dashboard` project). The same applies to `product-backlog/`, `docs/`, and any planning file: always use the copies **inside `voice-support-bot/`**. If you catch yourself editing a file above this directory for bot work, stop and move it here.
-- **This repo is self-contained for guidance.** When working here, use only this repository's `CLAUDE.md` / `AGENTS.md` and the skills under `voice-support-bot/.cursor/skills/`. Do **not** apply the workspace-root `BMad/claude.md`, `BMad/agents.md`, or root `.cursor/skills/` — those govern `cursor-usage-dashboard/`, not this project.
+- `ai4cc` is a **separate git repository** (default branch `main`) nested in the `BMad` workspace (which is another repository). Commit/push bot work **in this repository**, not in `BMad`.
+- **Ledgers and docs live in THIS repo.** When working on the Voice Support Bot, the `done-tasks.md` you append to is **`ai4cc/done-tasks.md`** — never the workspace-root `BMad/done-tasks.md` (that one logs only the `cursor-usage-dashboard` project). The same applies to `product-backlog/`, `docs/`, and any planning file: always use the copies **inside `ai4cc/`**. If you catch yourself editing a file above this directory for bot work, stop and move it here.
+- **This repo is self-contained for guidance.** When working here, use only this repository's `CLAUDE.md` / `AGENTS.md` and the skills under `ai4cc/.cursor/skills/`. Do **not** apply the workspace-root `BMad/claude.md`, `BMad/agents.md`, or root `.cursor/skills/` — those govern `cursor-usage-dashboard/`, not this project.
 - **Two-level branch model (decision 2026-07-29): sprint branch + ticket branches.**
   Each sprint has one integration branch `feat/sprint-NN-short-theme` (e.g.
   `feat/sprint-10-pilot-latency`) created from `feat/restart-from-scratch` at sprint start.
@@ -27,7 +27,7 @@
   step one — you MUST also update the sprint status in the same session (a fast-forward merge
   carries no closure commit, so nothing updates itself): (1) the sprint file `## Status` +
   roadmap row → `✅ Done (closed <date>)`, (2) the `backlog-index.md` sprint registry row →
-  `✅ Done (<date>)`, (3) a dated entry in **this repo's** `voice-support-bot/done-tasks.md`
+  `✅ Done (<date>)`, (3) a dated entry in **this repo's** `ai4cc/done-tasks.md`
   summarizing the sprint. Then commit + push these doc updates.
 - **Commit after each task**; do not leave code uncommitted.
 - On `feat/restart-from-scratch`, the previous implementation directories
@@ -112,14 +112,14 @@
 - Adding a dependency to parse YAML front-matter: SnakeYAML is already present (Spring Boot transitive dependency).
 - Putting Spring annotations in the domain, or injecting a connector while forgetting the `@Bean` (it will not be in `List<KnowledgeSourceConnector>`).
 - Believing `mvn test` needs a DB/Ollama: there is no `@SpringBootTest`; tests are domain units with fakes.
-- Putting bot learnings in the root `BMad` `CLAUDE.md`: it belongs to another project (`cursor-usage-dashboard`). Bot knowledge files live in `voice-support-bot/`.
+- Putting bot learnings in the root `BMad` `CLAUDE.md`: it belongs to another project (`cursor-usage-dashboard`). Bot knowledge files live in `ai4cc/`.
 - Starting Billing V1 from scratch: keep the POC voice/RAG/orchestrator foundation, but rebuild the business core around the BSS and invoice comparison.
 - Using a generic MCP as the main BSS access path in customer runtime: prefer a typed read-only business port (`BssBillingPort`) with BSS adapters; reserve MCP for exploration and internal tools.
 - Coupling the product core to a specific LLM/STT/TTS SDK: expose these capabilities through configurable ports/adapters so providers can be benchmarked and swapped easily.
 - Presenting `bridge_server.py` as the V1 voice target: false. The V1 target starts on Gradium + Pipecat (`agent/bot.py`); the custom bridge remains a historical POC / fallback.
 - Writing new `docs/` content in French: documentation must be in English, even when the working conversation is in French.
 - Closing the product around billing only: V1 = invoice explanation, but the architecture must remain extensible to other operator support domains.
-- Creating a separate repository for the product backlog when the user mainly wants to keep it with the project: by default, store artifacts in `product-backlog/` in the `voice-support-bot` repo unless an external git repository is explicitly requested.
+- Creating a separate repository for the product backlog when the user mainly wants to keep it with the project: by default, store artifacts in `product-backlog/` in the `ai4cc` repo unless an external git repository is explicitly requested.
 - Writing product EPICs/user stories without the `product-business` skill: this skill keeps stories at the level of need, value, business rules, and observable acceptance, without API or implementation details.
 - Taking `billing-service` as the Galaxion source for invoices: it is no longer used. For V1, target only `billing-api`.
 - Looking for a structured Galaxion invoice-line endpoint without proof: none has been identified. Retrieve the PDF through `bill-run-documents` and use a deterministic `InvoicePdfExtractor`.
@@ -185,7 +185,7 @@
 - Scoring STT quality with a raw whitespace WER against a real engine — punctuation, case and accents (`telephone` vs `téléphone`, `Bonjour` vs `Bonjour.`) inflate WER to the point of failing correct transcripts. Normalize reference and hypothesis (lowercase, strip punctuation, fold accents) before WER; keep the raw transcript for audit.
 - Assuming batch STT latency is a fixed cost — it scales with audio duration (Gradium processes the whole clip after upload). Use streaming/partial transcription as the latency lever, and always report the utterance length alongside the latency.
 - Omitting an un-instrumented pipeline slice from a latency report — always emit every canonical slice and mark missing ones `"measured": false` with a reason/owning ticket, so a gap is never mistaken for a fast slice. When one slice can be fed by several span names, let the first present name win so distributions from different paths don't mix.
-- Running git commands for bot work from the `BMad` workspace root — `voice-support-bot` is a **separate nested git repository**. `git checkout <vsb-branch>` / `git stash` executed from the root repo fail with "pathspec did not match" or land the stash in the wrong repo. Always `cd voice-support-bot` (confirm with `git rev-parse --show-toplevel`) before staging, committing, stashing or switching branches for bot work.
+- Running git commands for bot work from the `BMad` workspace root — `ai4cc` is a **separate nested git repository**. `git checkout <vsb-branch>` / `git stash` executed from the root repo fail with "pathspec did not match" or land the stash in the wrong repo. Always `cd ai4cc` (confirm with `git rev-parse --show-toplevel`) before staging, committing, stashing or switching branches for bot work.
 - Editing knowledge/doc files without first confirming the working tree matches HEAD — a stale or reverted working copy can silently drop already-committed content, so an append re-commits a regression. Run `git status` / `git diff HEAD` and restore from HEAD before appending.
 - Validating a WebRTC voice turn with a **pure-silence** trailing pad — Opus DTX sends no packets during digital silence, so an energy-based end-of-turn aggregator never flushes and the US-036 telemetry stays empty (while `received_bot_audio` is `True` from the output track's silence keepalive, which is misleading). Pad file-based test clips with low-amplitude noise (peak ≪ ~1000), never zeros; a real mic works because of its ambient noise floor. Hold a headless client's call open a fixed window instead of hanging up on the first bot frame. TASK-WEB-007.
 - Assuming Pipecat's `SmallWebRTCTransport` is audio-only-light or that its signaling is framework-free — it hard-imports `cv2` (`av`+`opencv-python`, duplicate `libavdevice` dylib → benign macOS `objc` warning), and `SmallWebRTCRequestHandler` imports FastAPI. Keep the transport behind the import guard and do signaling directly on `SmallWebRTCConnection` (no FastAPI). The threaded stdlib server needs one persistent asyncio loop (`web_voice/async_loop.py`) for the streaming session; submit coroutines with `run_coroutine_threadsafe`. See ADR-0022.

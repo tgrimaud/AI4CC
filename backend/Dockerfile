@@ -15,7 +15,7 @@ RUN mvn -B -q dependency:go-offline
 # Build the executable jar (tests run in CI, not in the image build).
 COPY src ./src
 RUN mvn -B -q -DskipTests clean package \
-    && cp target/voice-support-backend-*.jar /build/app.jar
+    && cp target/ai4cc-backend-*.jar /build/app.jar
 
 # ---- Runtime stage -----------------------------------------------------------
 FROM eclipse-temurin:17-jre AS runtime
