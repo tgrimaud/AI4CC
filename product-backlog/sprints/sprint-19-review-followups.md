@@ -18,11 +18,21 @@ live since `v0.9.4`+, AI4CC rebrand).
   billing/BSS/Genesys handoff shipped (not "target-only"), billing routing on `/converse`
   (ADR-0055/0056), pilot LLM provider `openai` (not pinned to `mistral-api`), AI4CC naming.
 
-### Out of Scope (tracked follow-ups)
+### Follow-ups done this sprint (TASK-OPS-018 tails)
 
-- Recreate `voice-agent/.venv` (stale shebangs after the dir rename).
-- Finish display rebrand on remaining entry-doc headers (`docs/README.md`, `adrs/README.md`).
-- Release tag + pilot redeploy under `ghcr.io/tgrimaud/ai4cc-*` (TASK-OPS-018 operational tail).
+- ✅ Recreated `voice-agent/.venv` (stale shebangs after the dir rename) — rebuilt against public
+  PyPI (corporate JFrog mirror was unreachable); `./.venv/bin/behave` works directly again;
+  733 unittest + 43 behave scenarios green on the fresh venv. (Local env only — git-ignored.)
+- ✅ Finished display rebrand on the remaining current-doc headers (`docs/README.md`,
+  `adrs/README.md`, `operations/backlog.md`, `product/cahier-des-charges-fonctionnel.md`, the two
+  Genesys integration/ops docs, Galaxion docs). ADR bodies + QA review docs keep the historical
+  "Voice Support Bot" name on purpose.
+
+### Still out of scope (needs a user decision)
+
+- Release tag + pilot redeploy under `ghcr.io/tgrimaud/ai4cc-*` (TASK-OPS-018 operational tail):
+  gated on Sprint 19 closure + an explicit deploy request; the pilot `.env` image refs must be
+  flipped to the `ai4cc-*` names in the same operation, else the pilot points at non-existent images.
 
 ## Tickets
 
