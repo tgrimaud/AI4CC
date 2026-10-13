@@ -6,6 +6,9 @@
 Scope delivered = **config-driven sub-type steering** of the clarify question (FR/EN) + empty-list
 fallback + telemetry; the sub-type→escalation-tag detection is **deferred** (needs a classifier, see
 Follow-up). Backend suite **777 green** incl. ArchUnit.
+**Adversarial review 93/100 (Pass, 2026-10-13)** — no blocking finding; residual (accepted): escalation-tag
+detection deferred to a follow-up; base-clarify-prompt wording tension (Low, backstopped by the single-question
+directive + DEC-002 OutputGuardrail). Review: [`docs/qa/task-be-072-adversarial-review.md`](../../docs/qa/task-be-072-adversarial-review.md).
 **Priority:** Medium
 **Epic:** EPIC-005 (Answer engine / knowledge base)
 **Delivers:** OQ-043-b resolution (US-043). Builds on TASK-BE-071 (increment C) which shipped a **generic** clarify prompt.
