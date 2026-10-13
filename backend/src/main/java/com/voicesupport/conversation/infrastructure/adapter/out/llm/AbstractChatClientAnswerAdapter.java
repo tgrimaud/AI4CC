@@ -138,9 +138,13 @@ public abstract class AbstractChatClientAnswerAdapter
     // appended recency-last. Returns the raw question text; the orchestration layer vets it (DEC-002)
     // and enforces the trigger/bound.
     @Override
-    public String generateClarifyingQuestion(String question, List<String> history, AnswerLanguage language) {
+    public String generateClarifyingQuestion(
+            String question, List<String> history, AnswerLanguage language, List<String> subTypeHints) {
         AnswerLanguage target = language == null ? AnswerLanguage.ENGLISH : language;
-        String systemMessage = CLARIFY_SYSTEM_PROMPT + historyBlock(history) + "\n\n" + target.clarifyDirective();
+        String steering = target.clarifySubTypeDirective(subTypeHints);
+        String systemMessage = CLARIFY_SYSTEM_PROMPT + historyBlock(history)
+                + (steering.isEmpty() ? "" : "\n\n" + steering)
+                + "\n\n" + target.clarifyDirective();
         String text = telemetry.time(Slices.LLM_WORDING, providerName(),
                 () -> BoundedLlmCall.run(timeoutMs, () -> invoke(systemMessage, question == null ? "" : question)));
         telemetry.recordAnswerLanguage(providerName(), target.code());

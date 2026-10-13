@@ -253,6 +253,34 @@ voice-support:
     # diagnostic (keeps the TASK-BE-070 single canned clarify). Tune per deployment without a rebuild.
     billing-clarify:
       max-questions: ${CONVERSATION_BILLING_CLARIFY_MAX_QUESTIONS:2}
+      # US-043 / TASK-BE-072 (OQ-043-b): per-deployment, enrichable list of billing problem sub-types
+      # that STEER the single clarify question toward issues the assistant can actually explain (KB +
+      # comparison engine). Each entry = a stable id + a short FR/EN hint phrasing woven into the
+      # question in the answer language (at most 2-3 are offered per turn, never the whole list, never
+      # an amount — DEC-002). Adding/removing/relabelling a sub-type is config only; an empty list falls
+      # back to the generic TASK-BE-071 clarify prompt. Starter set confirmed by Product (2026-10-09).
+      sub-types:
+        - id: higher-than-usual
+          fr: "une facture plus élevée que d'habitude"
+          en: "a bill higher than usual"
+        - id: unrecognised-charge
+          fr: "un prélèvement ou un montant que vous ne reconnaissez pas"
+          en: "a charge or amount you don't recognise"
+        - id: service-billed-wrong
+          fr: "un service facturé en trop ou que vous n'avez pas demandé"
+          en: "a service billed in excess or that you didn't request"
+        - id: out-of-bundle
+          fr: "une consommation hors forfait (données, appels, SMS, roaming ou international)"
+          en: "out-of-bundle usage (data, calls, SMS, roaming or international)"
+        - id: first-or-moving-bill
+          fr: "votre première facture ou une facture après un déménagement"
+          en: "your first bill or a bill after moving home"
+        - id: payment-or-refund
+          fr: "un problème de paiement, de prélèvement ou de remboursement"
+          en: "a payment, direct debit or refund issue"
+        - id: promo-ended
+          fr: "une promotion ou une remise qui a pris fin"
+          en: "a promotion or discount that has ended"
     # Answer-language default (TASK-BE-015, ADR-0031). The assistant answers in the language of the
     # customer's question (FR/EN); this default is used only when a turn is too ambiguous to detect
     # and no session language is established yet. English for the Eir pilot; set to fr for a French

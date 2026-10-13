@@ -93,7 +93,7 @@ class ConversationMemoryConfigWiringTest {
 
         @Bean
         ClarifyingQuestionGeneratorPort clarifyingQuestionGeneratorPort() {
-            return (question, history, language) -> "Could you tell me more?";
+            return (question, history, language, subTypeHints) -> "Could you tell me more?";
         }
     }
 }
