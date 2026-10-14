@@ -43,6 +43,11 @@ live since `v0.9.4`+, AI4CC rebrand).
 
 ## Status
 
-🟢 In progress (opened 2026-10-13) — both tickets merged into the sprint branch
-`feat/sprint-19-review-followups` (`--no-ff`). Sprint closure (merge into
-`feat/restart-from-scratch` + status flip) awaits the user's explicit request.
+✅ Done (closed 2026-10-14) — merged into `feat/restart-from-scratch` (`--no-ff` closure commit).
+Closed the actionable findings from the 2026-10-13 full adversarial review: **BUG-030** (streaming
+STT `CancelFrame` socket leak) fixed + regression test, adversarial review 95/100 (Pass);
+**TASK-DOC-011** refreshed `architecture.md` + reconciled `CLAUDE.md` with shipped reality (billing +
+Genesys handoff live, `/converse` billing routing ADR-0055/0056, pilot `llm_provider: openai`
+ADR-0051, AI4CC naming). TASK-OPS-018 tails also done: `voice-agent/.venv` recreated (shebangs fixed,
+733 unittest + 43 behave green), display rebrand finished on current docs. Released as part of
+**v0.10.0** (rebrand + follow-ups).

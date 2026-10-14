@@ -3,6 +3,31 @@
 > **Scope: Voice Support Bot only.** This is the ledger for all `voice-support-bot`
 > work. Do not log bot work in the workspace-root `BMad/done-tasks.md`.
 
+## 2026-10-14 — Sprint 19 closed + v0.10.0 released (review follow-ups)
+
+**Summary:**
+
+- **Sprint 19 closed** and merged into `feat/restart-from-scratch` (`--no-ff` closure commit),
+  then tagged **v0.10.0** (CI publishes `ghcr.io/tgrimaud/ai4cc-{backend,voice}:0.10.0`). v0.10.0 is
+  the **first release carrying the AI4CC rebrand** (Sprint 18 / TASK-OPS-018, previously unreleased).
+- **BUG-030** — streaming STT `CancelFrame` socket leak: `StreamingSttProcessor` now
+  `_discard_session()` (close + null the in-flight STT session) on `CancelFrame`, not only the
+  pre-warm spare, so the provider WebSocket is not leaked on abrupt teardown. Regression test
+  `test_cancel_frame_discards_open_stt_session`. Adversarial review **95/100 (Pass)**
+  (`docs/qa/BUG-030-adversarial-review.md`).
+- **TASK-DOC-011** — refreshed `docs/architecture/architecture.md` + reconciled `CLAUDE.md` with the
+  shipped reality: billing explanation + Genesys Audio Connector handoff live (`v0.9.4`+, no longer
+  "target-only"), billing routing + bounded clarify on `/converse` (ADR-0055/0056), pilot
+  `llm_provider: openai` (ADR-0051), AI4CC naming. Deep legacy route/port tables left as-is (already
+  disclaimed by the top authoritative block).
+- **TASK-OPS-018 tails:** recreated `voice-agent/.venv` (stale shebangs after the dir rename; rebuilt
+  via public PyPI as the corporate JFrog mirror was unreachable) — `./.venv/bin/behave` works directly
+  again, **733 unittest + 15 features / 43 scenarios / 194 steps green**; finished the display rebrand
+  on current docs (`docs/README.md`, `adrs/README.md`, `operations/backlog.md`, the cahier, the two
+  Genesys docs, Galaxion docs; ADR bodies + QA reports keep the historical "Voice Support Bot" name).
+- **Still pending (operational):** `ansible-playbook deploy.yml -e image_tag=0.10.0` to the pilot VMs
+  (vault pass + SSH, user-driven) once CI has published both images.
+
 ## 2026-10-13 — Sprint 18 closed (AI4CC rebranding, TASK-OPS-018)
 
 **Summary:**
