@@ -1,4 +1,4 @@
-# Genesys Architect Flow — Control / Routing Contract (Voice Support Bot Audio Connector)
+# Genesys Architect Flow — Control / Routing Contract (AI4CC Audio Connector)
 
 > Ticket: TASK-INFRA-012 · Sprint 13 (Genesys Audio Connector) · Status: **draft / preparation**
 > Audience: Genesys Cloud administrators + architects, plus our runtime/ops engineers.
@@ -32,8 +32,8 @@ measurement (`genesys-live-measurement-runbook.md`).
 | System | Role in this contract |
 |---|---|
 | Genesys Cloud CX (Architect + Audio Connector integration) | Contact-center system of record: DID/IVR, Call Audio Connector fork, queues, advisor routing, participant attributes. |
-| Voice Support Bot runtime (`voice-agent`, ADR-0047 async server) | Terminates the AudioHook `wss` connection, **authenticates it** (API key + HMAC signature, TASK-INFRA-012), runs the V2V session, ends the session so Architect resumes. |
-| Voice Support Bot backend (Java) | Owns the audited `EscalationHandoff` and serves it by reference on `GET /api/conversation/escalation-handoffs/{handoff_id}` (TASK-BE-036, api-key gated). |
+| AI4CC runtime (`voice-agent`, ADR-0047 async server) | Terminates the AudioHook `wss` connection, **authenticates it** (API key + HMAC signature, TASK-INFRA-012), runs the V2V session, ends the session so Architect resumes. |
+| AI4CC backend (Java) | Owns the audited `EscalationHandoff` and serves it by reference on `GET /api/conversation/escalation-handoffs/{handoff_id}` (TASK-BE-036, api-key gated). |
 
 ## Target Flow
 

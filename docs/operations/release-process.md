@@ -19,7 +19,7 @@ companion to the topology reference
 | Concern | Owner | Where |
 |---------|-------|-------|
 | Run tests, build + push images | CI (GitHub Actions) | `.github/workflows/{tests,ci,images}.yml` |
-| Immutable image tags (`X.Y.Z` — no `v` —, `sha-xxxxxxx`) | CI | GHCR (`ghcr.io/<owner>/voice-support-{backend,voice}`) |
+| Immutable image tags (`X.Y.Z` — no `v` —, `sha-xxxxxxx`) | CI | GHCR (`ghcr.io/<owner>/ai4cc-{backend,voice}`) |
 | Deploy a tag to the VMs | Ansible over SSH | `deploy/ansible/deploy.yml` |
 | Roll back to a previous tag | Ansible over SSH | `deploy/ansible/rollback.yml` |
 | Secrets | Ansible Vault (rendered to `.env` per host) | `group_vars/all/vault.yml` |

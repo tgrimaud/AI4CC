@@ -1,4 +1,4 @@
-# Functional Specification — Voice Support Bot
+# Functional Specification — AI4CC
 
 > **Current delivery (`feat/restart-from-scratch`, 2026-07-28, Sprint 9):** this is
 > the **target** functional spec. Built on this branch: the full web Voice2Voice
@@ -11,7 +11,7 @@
 
 ## Document Status
 
-This document describes the broad functional target for Voice Support Bot: a
+This document describes the broad functional target for AI4CC: a
 telecom support assistant with voice, text, RAG, multi-agent routing,
 escalation, admin monitoring, and future omnichannel readiness.
 
@@ -52,7 +52,7 @@ no `Escalation*`/`Genesys*`, no billing/BSS/PDF code). Full detail:
 
 ## 1. Context and Objectives
 
-Voice Support Bot is a voice-to-voice conversational assistant for the customer support of a Telecom/ISP operator. It allows a customer to ask a question orally or in writing, receive an answer guided by an internal knowledge base, and be routed to a human advisor when the request exceeds the automatable scope.
+AI4CC is a voice-to-voice conversational assistant for the customer support of a Telecom/ISP operator. It allows a customer to ask a question orally or in writing, receive an answer guided by an internal knowledge base, and be routed to a human advisor when the request exceeds the automatable scope.
 
 The main objective is to reduce the load on first-level support while maintaining a natural, fast, and reliable customer experience. The system must answer frequent questions, guide users through simple procedures, and qualify requests that require human intervention.
 

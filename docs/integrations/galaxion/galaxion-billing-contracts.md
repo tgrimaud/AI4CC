@@ -572,7 +572,7 @@ Flow to validate with real examples:
 8. Extract the PDF with `InvoicePdfExtractor`.
 9. Use the extracted normalized JSON for the comparison engine.
 
-## Mapping To The Voice Support Bot Domain
+## Mapping To The AI4CC Domain
 
 | Target Domain | Source |
 |---------------|--------|

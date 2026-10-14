@@ -213,7 +213,11 @@ class StreamingSttProcessor(FrameProcessor):
             await self._warmer.aclose()
             await self.push_frame(frame, direction)
         elif isinstance(frame, CancelFrame):
-            # Cancelled call: drop any unused spare so a pre-warmed socket is never leaked.
+            # Cancelled call (abrupt teardown, no graceful EndFrame): close the in-flight
+            # streaming STT session so the provider socket is never leaked (BUG-030), then
+            # drop any unused pre-warm spare. We discard rather than finalize — an aborted
+            # call has no transcript to flush.
+            await self._discard_session()
             await self._warmer.aclose()
             await self.push_frame(frame, direction)
         elif isinstance(frame, (BotStartedSpeakingFrame, BotStoppedSpeakingFrame)):

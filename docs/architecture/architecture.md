@@ -1,14 +1,15 @@
-# Architecture — Voice Support Bot
+# Architecture — AI4CC
 
 > Restart branch note: on `feat/restart-from-scratch`, the previous implementation
-> was first removed, then rebuilt from scratch. **Some sections below still describe
-> the full TARGET architecture** (billing/BSS, Genesys, telephony, Redis, React
-> frontend) that is **not yet built** — present-tense wording in those sections
-> refers to design intent and to the `main` reference implementation. Read the
-> "What is actually built on this branch today" block below for the current state.
+> was first removed, then rebuilt from scratch. **Some deep sections below still
+> describe the legacy `main` contract** (route/port tables, multi-agent controllers,
+> `agent/bot.py`) — present-tense wording there refers to the `main` reference
+> implementation. Read the "What is actually built on this branch today" block below
+> for the authoritative current state.
 >
-> **What is actually built on this branch today (through Sprint 11)** is a full
-> **web Voice2Voice loop** across two rebuilt services, now packaged for deployment:
+> **What is actually built on this branch today (through Sprint 18)** is a full
+> **web Voice2Voice loop with billing explanation and Genesys handoff**, across two
+> rebuilt services packaged for deployment:
 >
 > - **Python voice runtime** (`voice-agent/`, port `8090`): **STT**
 >   (`stt_validation/` — fixture + real Gradium, batch REST **and** streaming
@@ -33,8 +34,10 @@
 >   runs the deterministic **billing** chain (identity → comparable invoices →
 >   comparison → confidence gate) behind the answer engine: the LLM only rephrases the
 >   grounded, pre-computed explanation (DEC-002) and the bot escalates fail-closed
->   (unverified identity / unexplained change) by-reference. `/converse` is unchanged
->   (billing routing from `/converse` is a follow-up).
+>   (unverified identity / unexplained change) by-reference. **Billing routing on
+>   `/converse` is shipped** (ADR-0055): a billing opener on the voice path runs the
+>   same deterministic chain, and a vague billing opener triggers the bounded
+>   **clarify** dialogue (US-043 / ADR-0056, configurable sub-types TASK-BE-072).
 > - **Infra:** local `docker-compose.yml` (Postgres/`pgvector` on 5433 + Ollama) for
 >   dev, **plus the Sprint 11 deployment packaging**: Docker images for both services,
 >   `deploy/compose/` stacks per tier, HAProxy/Keepalived VIPs, GitHub Actions CI, and
@@ -42,18 +45,21 @@
 >   inputs). **Redis-backed shared conversation memory** is built (`CONVERSATION_STORE=redis`,
 >   TASK-BE-021) so two backends behind a VIP keep multi-turn context.
 >
-> **Not built yet** (target only): customer identity, read-only BSS access, invoice
-> PDF extraction + deterministic comparison, escalation contract + Genesys handoff,
-> phone (Twilio) Voice2Voice, and the standalone React frontend (the web client is the
-> `web_voice/` static page). Route/port tables further down this document may still
-> show the legacy `main` contract (`/api/conversation/ask`, `ask-stream`, `:8081`,
-> `agent/bot.py`, `:7860` Pipecat UI, `:5173` React); the authoritative current
-> contract is the one in this block. See `voice-agent/README.md` and
-> `product-backlog/backlog-index.md`.
+> **Shipped since Sprint 11** (deployed + smoke-tested on the pilot, `v0.9.4`+):
+> channel-provided customer identity, read-only BSS access, invoice PDF extraction +
+> deterministic comparison, the escalation contract + **Genesys Audio Connector**
+> handoff (by-reference, `VOICE_GENESYS=on`), and billing routing/clarify on the voice
+> path. **Still target-only:** phone (Twilio) Voice2Voice, the Genesys **live-org**
+> legs (real-tenant TLS trust, native barge-in/EOT, Architect fail-safe) and tested
+> degraded modes, and the standalone React frontend (the web client is the `web_voice/`
+> static page). Route/port tables further down this document may still show the legacy
+> `main` contract (`/api/conversation/ask`, `ask-stream`, `:8081`, `agent/bot.py`,
+> `:7860` Pipecat UI, `:5173` React); the authoritative current contract is the one in
+> this block. See `voice-agent/README.md` and `product-backlog/backlog-index.md`.
 
 ## Overview
 
-Voice Support Bot is an intelligent voice agent that answers customer support
+AI4CC is an intelligent voice agent that answers customer support
 questions in the Telecom/ISP domain. It uses the **RAG**
 (Retrieval-Augmented Generation) pattern to provide factual answers based on an
 internal knowledge base.

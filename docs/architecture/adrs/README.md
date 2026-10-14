@@ -1,6 +1,6 @@
 # Architecture Decision Records
 
-This folder contains Architecture Decision Records (ADRs) for Voice Support Bot.
+This folder contains Architecture Decision Records (ADRs) for AI4CC.
 
 ADRs capture structural decisions that should remain visible beyond code, chats,
 diagrams, and planning notes. When a decision changes, create a new ADR and mark
