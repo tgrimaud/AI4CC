@@ -73,10 +73,13 @@ These headers are the BSS authorization context and must be derived from the res
 
 ### Cause attribution from the breakdown
 
-The enquiry breakdown maps coarsely onto `BillingCauseType`: `usageAmount` → `USAGE_OVERAGE`,
-`oneOffAmount` → `ONE_OFF_FEE`, `vatAmount` → `TAX`, `recurringAmount` → subscription/discount/
-option/proration bucket (needs finer lines to separate `DISCOUNT_EXPIRY` / `OPTION_CHANGE` /
-`PRORATION`). Finer attribution requires the CSV `detail-report` or the PDF.
+The enquiry breakdown maps coarsely onto the cause codes the engine emits today:
+`usageAmount` → `USAGE_OVERAGE`, `oneOffAmount` → `ONE_OFF_FEE`, `vatAmount` → `TAX`,
+`recurringAmount` → a subscription/discount/option/proration bucket (finer lines are
+required to separate `DISCOUNT_EXPIRY` / `OPTION_CHANGE` / `PRORATION`). Finer
+attribution requires the CSV `detail-report` or the PDF. The target catalogue
+(ADR-0057, TASK-BE-073, not yet implemented) replaces those coarser codes; until
+it lands, the running engine still emits the codes named here.
 
 ## Independent-Adapter Design (BE-047)
 
@@ -153,8 +156,11 @@ First real calls against the Eir dev services (VPN), `galaxion-user-type: SYSTEM
   **B2B-only** (see above); for the B2C V1 target the token does not apply.
 - Real shape of the **CSV** `detail-report` columns — only relevant if a B2B path ever enters scope.
 - Does `invoiceAmount` include previous balance / payments, or only current-period lines?
-- Line-level catalogue to separate `DISCOUNT_EXPIRY` / `OPTION_CHANGE` / `PRORATION` inside
-  `recurringAmount` (needs the CSV/PDF lines + a code/type catalogue).
+- Line-level catalogue to separate discount, option, and prorata inside
+  `recurringAmount` (needs the CSV/PDF lines). The target names are the ADR-0057
+  catalogue (TASK-BE-073). Still missing for that catalogue: confirmed eir labels
+  for a late-payment fee and a device installment, and a speed token on the
+  home-internet line.
 - ~~Account id typing mismatch~~ **Resolved 2026-09-15:** enquiry `billingAccountId` (int64) and
   billing-service `account_id` (string) are the **same identifier** (one space); `invoiceId` == `invoiceNumber`.
   The Eir adapter enforces BR-002-1 defense-in-depth on `fetchInvoice` (numeric owner compare, fail-closed).
