@@ -108,14 +108,21 @@ public class BillingExplanationService implements ExplainBillingUseCase {
 
     private BillingExplanation fromReadiness(
             InvoiceComparison comparison, ExplanationReadiness readiness, String language) {
+        List<String> causes = causeCodes(comparison);
         if (readiness.confidence() == ExplanationConfidence.EXPLAINABLE) {
-            return BillingExplanation.explained(composer.compose(comparison, readiness, language), CONFIDENCE_FULL);
+            return BillingExplanation.explained(
+                    composer.compose(comparison, readiness, language), CONFIDENCE_FULL, causes);
         }
         if (readiness.confidence() == ExplanationConfidence.PARTIAL) {
             return BillingExplanation.partiallyExplained(
-                    composer.compose(comparison, readiness, language), CONFIDENCE_PARTIAL);
+                    composer.compose(comparison, readiness, language), CONFIDENCE_PARTIAL, causes);
         }
-        return BillingExplanation.notEnoughData(composer.notEnoughData(language), reasonOf(readiness.reason()));
+        return BillingExplanation.notEnoughData(
+                composer.notEnoughData(language), reasonOf(readiness.reason()), causes);
+    }
+
+    private static List<String> causeCodes(InvoiceComparison comparison) {
+        return comparison.causes().stream().map(cause -> cause.type().name()).toList();
     }
 
     // Maps the confidence-gate reason onto the stable NOT_ENOUGH_DATA telemetry reason (TASK-BE-048).

@@ -65,13 +65,13 @@ new service's base amount as an unexplained residual.
 
 ## Amendment (2026-10-15) — cause catalogue
 
-The cause set in the amendment above is the running behaviour. The target
-catalogue (thirteen named causes, still fail-closed on `UNEXPLAINED`) is
-**ADR-0057**, implemented by **TASK-BE-073**. This ADR is not superseded:
-read-only BSS evidence and deterministic comparison stay the decision.
+The 2026-10-05 cause set above is replaced by the fifteen-cause catalogue in
+**ADR-0057** (TASK-BE-073). `UNEXPLAINED` stays the fail-closed residual.
+This ADR is not superseded: read-only BSS evidence and deterministic
+comparison stay the decision.
 
 ## Related Documents
 
-- [ADR-0057](ADR-0057-invoice-difference-cause-catalogue.md) — target cause catalogue (TASK-BE-073)
+- [ADR-0057](ADR-0057-invoice-difference-cause-catalogue.md) — cause catalogue (TASK-BE-073)
 - `docs/product/v1-scope.md`
 - `docs/integrations/galaxion/bss-integration-plan.md`

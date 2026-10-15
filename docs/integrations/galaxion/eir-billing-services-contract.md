@@ -73,13 +73,13 @@ These headers are the BSS authorization context and must be derived from the res
 
 ### Cause attribution from the breakdown
 
-The enquiry breakdown maps coarsely onto the cause codes the engine emits today:
-`usageAmount` → `USAGE_OVERAGE`, `oneOffAmount` → `ONE_OFF_FEE`, `vatAmount` → `TAX`,
-`recurringAmount` → a subscription/discount/option/proration bucket (finer lines are
-required to separate `DISCOUNT_EXPIRY` / `OPTION_CHANGE` / `PRORATION`). Finer
-attribution requires the CSV `detail-report` or the PDF. The target catalogue
-(ADR-0057, TASK-BE-073, not yet implemented) replaces those coarser codes; until
-it lands, the running engine still emits the codes named here.
+The enquiry breakdown maps coarsely onto cause families:
+`usageAmount` → `USAGE_OVERAGE`, a one-off amount → activation, late fee, ended
+installment, one-off bundle, or `UNEXPLAINED`, `vatAmount` → `TAX_CHANGE` when it is not already
+inside another named cause, `recurringAmount` → subscription, discount, option,
+or prorata. Finer attribution needs the CSV `detail-report` or the PDF. The
+engine emits the ADR-0057 catalogue (TASK-BE-073). `CHANGE_CYCLE` is in that
+catalogue and is not inferred from invoice lines.
 
 ## Independent-Adapter Design (BE-047)
 

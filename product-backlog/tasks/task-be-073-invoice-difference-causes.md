@@ -2,8 +2,17 @@
 
 **Type:** Technical task (backend billing domain)
 **Status:** 🟢 Open (2026-10-15) — Sprint 20 (`feat/sprint-20-invoice-difference-causes`).
-Not started. Implementation branch `task/TASK-BE-073-invoice-difference-causes` forks
-from that sprint branch.
+Implementation is on `task/TASK-BE-073-invoice-difference-causes`. Backend tests
+green (797). Not merged.
+**Adversarial review 95/100 (Pass, 2026-10-15)** — third pass, after
+`ONE_OFF_BUNDLE`. The three eir accounts are explained, including 99224964
+(+25.48 € options and +29.99 € one-off bundle). A one-off bundle on the previous
+invoice only is tested (−29.99 €). Residual (accepted): a plan rename beside a
+staying subscription is an add-on pair; a discount whose amount changes on the
+same line stays `UNEXPLAINED`.
+**Smoke (2026-10-15): GO.** Superseded by the acceptance run the same day.
+**QA (2026-10-15): GO.** Six Cucumber journeys through the answer engine, plus the real PDF comparison. Report: `docs/qa/task-be-073-qa-report.md`.
+Full review: `docs/qa/task-be-073-adversarial-review.md`.
 **Priority:** Medium
 **Epic:** EPIC-004 (Billing explanation)
 **Delivers:** ADR-0057. Refines the ADR-0003 / TASK-BE-067 cause attribution.
@@ -35,6 +44,7 @@ is ADR-0057. This ticket implements it.
     prorata → `ADDON_ADDED`;
   - an option or a whole service disappears → `ADDON_REMOVED`;
   - a discount line present before and absent now → `DISCOUNT_ENDED`;
+  - a discount line absent before and present now → `DISCOUNT_ADDED`;
   - a usage or overage line appears, disappears, or changes amount →
     `USAGE_OVERAGE`;
   - a tax movement that is not already inside another named cause →
@@ -42,7 +52,9 @@ is ADR-0057. This ticket implements it.
   - an adjustment line appears, disappears, or changes amount →
     `BILLING_ADJUSTMENT`;
   - an activation or installation line on one invoice only (the known eir
-    example is "Broadband activation fee") → `ACTIVATION_FEE`.
+    example is "Broadband activation fee") → `ACTIVATION_FEE`;
+  - a one-off line whose description contains "bundle", on one invoice only
+    (the known eir example is "1GB USA/Canada Roaming Bundle") → `ONE_OFF_BUNDLE`.
 - `DEVICE_INSTALLMENT_ENDED` and `LATE_PAYMENT_FEE` exist in the catalogue and
   fire only against an explicit label list. With the list empty, those lines
   stay `UNEXPLAINED`. Do not match `mora`, `atrasad`, or any other unconfirmed
@@ -60,8 +72,8 @@ is ADR-0057. This ticket implements it.
 - A Siebel history feed or a CRM `CYCLE_CHANGE` event.
 - Guessing device-installment or late-fee labels. Filling that list is a
   missing input (below), not part of this ticket.
-- A same-label price drop, an in-place option price change, and a discount that
-  appears. Those stay `UNEXPLAINED` until Product names them.
+- A same-label price drop, an in-place option price change, and a discount
+  whose amount changes on the same line. Those stay `UNEXPLAINED`.
 - Letting the LLM choose the cause.
 
 ## Acceptance
@@ -75,6 +87,7 @@ is ADR-0057. This ticket implements it.
   for those explained lines stays zero.
 - "Broadband activation fee" on the current invoice only is `ACTIVATION_FEE`.
 - A discount present on the previous invoice and absent now is `DISCOUNT_ENDED`.
+- A discount absent before and present now is `DISCOUNT_ADDED`.
 - A tax line that only follows another named cause is not also `TAX_CHANGE`.
 - An empty late-fee and installment label list does not classify any current
   eir sample line as `LATE_PAYMENT_FEE` or `DEVICE_INSTALLMENT_ENDED`.
