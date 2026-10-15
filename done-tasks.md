@@ -3,6 +3,20 @@
 > **Scope: Voice Support Bot only.** This is the ledger for all `voice-support-bot`
 > work. Do not log bot work in the workspace-root `BMad/done-tasks.md`.
 
+## 2026-10-15 — Sprint 20 closed + v0.11.0 released (invoice difference causes)
+
+**Summary:**
+
+- **Sprint 20 closed** and merged into `feat/restart-from-scratch` (`--no-ff`), then tagged
+  **v0.11.0** (CI publishes `ghcr.io/tgrimaud/ai4cc-{backend,voice}:0.11.0`).
+- **TASK-BE-073** — the spoken invoice explanation uses the ADR-0057 catalogue (fifteen named
+  causes). A new TV or mobile is an add-on. A discount that starts is named. A partial period
+  that rolls off a service still on the bill stays part of that add-on when the discount shares
+  the same short window and the same service. A one-off line whose text contains "bundle" is a
+  one-off bundle. `UNEXPLAINED` stays the fail-closed residual. The three eir sample accounts
+  (99226126, 99224964, 99226337) are explained. Adversarial review **95/100 (Pass)**
+  (`docs/qa/task-be-073-adversarial-review.md`). QA **GO** (`docs/qa/task-be-073-qa-report.md`).
+
 ## 2026-10-14 — Sprint 19 closed + v0.10.0 released (review follow-ups)
 
 **Summary:**

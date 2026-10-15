@@ -32,10 +32,8 @@ invoices, with `UNEXPLAINED` still the fail-closed residual (BR-003).
 
 | Ticket | Title | Status |
 |--------|-------|--------|
-| TASK-BE-073 | Attribute invoice differences to the ADR-0057 cause catalogue | 🟢 Open — implementation on `task/TASK-BE-073-invoice-difference-causes`. Backend tests green (797). Adversarial review 95/100 (Pass). Not merged. |
+| TASK-BE-073 | Attribute invoice differences to the ADR-0057 cause catalogue | ✅ Done — merged and released in v0.11.0. Adversarial review 95/100 (Pass). QA GO. |
 
 ## Status
 
-🔵 In progress (opened 2026-10-15) — branch `feat/sprint-20-invoice-difference-causes`,
-cut from `feat/restart-from-scratch` at `v0.10.0`. One ticket. Implementation is
-on `task/TASK-BE-073-invoice-difference-causes` and is not merged.
+✅ Done (closed 2026-10-15) — merged into `feat/restart-from-scratch` and released as **v0.11.0**.

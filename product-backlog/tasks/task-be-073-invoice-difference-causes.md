@@ -1,9 +1,7 @@
 # TASK-BE-073 — Attribute invoice differences to the ADR-0057 cause catalogue
 
 **Type:** Technical task (backend billing domain)
-**Status:** 🟢 Open (2026-10-15) — Sprint 20 (`feat/sprint-20-invoice-difference-causes`).
-Implementation is on `task/TASK-BE-073-invoice-difference-causes`. Backend tests
-green (797). Not merged.
+**Status:** ✅ Done (2026-10-15) — merged into Sprint 20 and `feat/restart-from-scratch`, released as **v0.11.0**. Backend tests green. Adversarial review 95/100 (Pass). QA GO.
 **Adversarial review 95/100 (Pass, 2026-10-15)** — third pass, after
 `ONE_OFF_BUNDLE`. The three eir accounts are explained, including 99224964
 (+25.48 € options and +29.99 € one-off bundle). A one-off bundle on the previous

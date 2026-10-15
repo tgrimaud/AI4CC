@@ -1057,7 +1057,7 @@ unnecessary low-confidence caveat/escalation.
 
 ## TASK-BE-073 — Attribute invoice differences to the ADR-0057 cause catalogue
 
-**Status:** 🟢 Open (2026-10-15) — Sprint 20. Implementation on `task/TASK-BE-073-invoice-difference-causes`. Backend tests green (797). Adversarial review 95/100 (Pass). Not merged.
+**Status:** ✅ Done (2026-10-15) — merged and released as **v0.11.0**. Adversarial review 95/100 (Pass). QA GO.
 **Ticket:** `product-backlog/tasks/task-be-073-invoice-difference-causes.md`
 **Decision:** `docs/architecture/adrs/ADR-0057-invoice-difference-cause-catalogue.md`
 
