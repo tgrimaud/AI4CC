@@ -137,7 +137,18 @@ public class EirBssBillingAdapter implements BssBillingPort {
         // because the enquiry breakdown exposes tax only at invoice level (totals), not per category.
         LineAmounts amounts = new LineAmounts(money(minorUnits), money(minorUnits), Money.zero(currency));
         items.add(new InvoiceItem(id, null, null, null, category, amounts,
-                new Evidence("eir-billing-enquiry", null, category + " " + minorUnits)));
+                new Evidence("eir-billing-enquiry", null, stableLabel(category))));
+    }
+
+    // The amount stays on the line, not in the label. A subscription whose text changes is a
+    // plan change (ADR-0057); this bucket is the same charge every month.
+    private static String stableLabel(LineCategory category) {
+        return switch (category) {
+            case SUBSCRIPTION -> "Recurring charges";
+            case OVERAGE -> "Usage charges";
+            case ONE_OFF -> "One-off charges";
+            default -> category.name();
+        };
     }
 
     // Invoice-level totals: taxIncluded is the TTC invoiceAmount (the comparison basis), tax is the

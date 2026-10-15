@@ -63,7 +63,15 @@ Verified end to end on the real eir B2C PDFs (`EirB2cBillingComparisonE2eTest`):
 adding eir TV / eir Mobile 5G are now fully explained (residual €0.00) instead of carrying the
 new service's base amount as an unexplained residual.
 
+## Amendment (2026-10-15) — cause catalogue
+
+The 2026-10-05 cause set above is replaced by the fifteen-cause catalogue in
+**ADR-0057** (TASK-BE-073). `UNEXPLAINED` stays the fail-closed residual.
+This ADR is not superseded: read-only BSS evidence and deterministic
+comparison stay the decision.
+
 ## Related Documents
 
+- [ADR-0057](ADR-0057-invoice-difference-cause-catalogue.md) — cause catalogue (TASK-BE-073)
 - `docs/product/v1-scope.md`
 - `docs/integrations/galaxion/bss-integration-plan.md`

@@ -7,6 +7,7 @@ import com.ai4cc.billing.domain.port.out.BssBillingPort;
 import com.ai4cc.billing.infrastructure.adapter.out.bss.InMemoryBssBillingAdapter;
 import com.ai4cc.billing.infrastructure.adapter.out.identity.InMemoryCustomerDirectoryAdapter;
 import com.ai4cc.billing.infrastructure.fixtures.BssBillingFixtures;
+import com.ai4cc.billing.infrastructure.fixtures.EirB2cSampleFixtures;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -79,6 +80,7 @@ class BillingExplanationServiceTest {
         assertThat(explanation.answerable()).isTrue();
         assertThat(explanation.escalate()).isFalse();
         assertThat(explanation.text()).contains("5.00 €");
+        assertThat(explanation.causeCodes()).containsExactly("DISCOUNT_ENDED");
     }
 
     @Test
@@ -138,6 +140,30 @@ class BillingExplanationServiceTest {
         assertThat(explanation.outcome()).isEqualTo(BillingExplanationOutcome.NOT_ENOUGH_DATA);
         assertThat(explanation.escalate()).isTrue();
         assertThat(explanation.reason()).isEqualTo(BillingExplanation.REASON_EVIDENCE_UNFETCHABLE);
+    }
+
+    @Test
+    void a_new_tv_and_its_new_discounts_are_explained() {
+        // GIVEN account 99226126: eir TV is an add-on, and both new TV discounts start this month
+        BssBillingPort samples = new InMemoryBssBillingAdapter(EirB2cSampleFixtures.all());
+        BillingExplanationService samplesService = new BillingExplanationService(
+                new BillingIntentDetector(List.of("facture", "augmente", "invoice", "bill")),
+                new CustomerIdentityService(new InMemoryCustomerDirectoryAdapter()),
+                new ComparableInvoiceService(samples), samples,
+                new InvoiceComparisonService(), new ComparisonConfidenceService(0.05),
+                new BillingExplanationComposer());
+
+        // WHEN the customer asks why the bill changed
+        BillingExplanation explanation = samplesService.explain(
+                BillingExplanationQuery.of("web", BILLING_QUESTION, "99226126", null, "fr"));
+
+        // THEN the bill is fully explained and the new discount is spoken with the add-on
+        assertThat(explanation.outcome()).isEqualTo(BillingExplanationOutcome.EXPLAINED);
+        assertThat(explanation.escalate()).isFalse();
+        assertThat(explanation.text()).contains("nouveau service");
+        assertThat(explanation.text()).contains("début d'une remise");
+        assertThat(explanation.causeCodes())
+                .containsExactly("ADDON_ADDED", "DISCOUNT_ADDED", "ACTIVATION_FEE");
     }
 
     // Lists two invoice summaries but never returns a fetchable invoice (empty Optional).

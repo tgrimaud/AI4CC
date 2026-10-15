@@ -1,19 +1,23 @@
 package com.ai4cc.billing.domain.model;
 
-// The business reason a set of line deltas is attributed to. UNEXPLAINED is the fail-closed bucket
-// for a delta the deterministic engine cannot attribute — it is surfaced (never hidden) and can
-// gate the explanation or trigger escalation (BR-003, ADR-0019). SERVICE_ADDED / SERVICE_REMOVED cover
-// a subscription line that appeared / disappeared (a new or removed service), distinct from an opaque
-// in-place subscription change which stays UNEXPLAINED (TASK-BE-067).
+// Business reason a set of line deltas is attributed to (ADR-0057). UNEXPLAINED is the fail-closed
+// bucket: it is surfaced as residual and can gate the explanation (BR-003), and it is never voiced
+// as a cause. CHANGE_CYCLE stays in the catalogue but is not attributed from invoice lines alone.
 public enum BillingCauseType {
-    DISCOUNT_EXPIRY,
+    PLAN_CHANGE,
+    TARIFF_INCREASE,
+    SPEED_UPGRADE,
+    ADDON_ADDED,
+    ADDON_REMOVED,
+    DISCOUNT_ENDED,
+    DISCOUNT_ADDED,
+    DEVICE_INSTALLMENT_ENDED,
+    LATE_PAYMENT_FEE,
+    CHANGE_CYCLE,
     USAGE_OVERAGE,
-    OPTION_CHANGE,
-    SERVICE_ADDED,
-    SERVICE_REMOVED,
-    PRORATION,
-    TAX,
-    ONE_OFF_FEE,
-    ADJUSTMENT,
+    TAX_CHANGE,
+    BILLING_ADJUSTMENT,
+    ACTIVATION_FEE,
+    ONE_OFF_BUNDLE,
     UNEXPLAINED
 }

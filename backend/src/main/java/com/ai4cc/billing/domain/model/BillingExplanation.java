@@ -1,14 +1,17 @@
 package com.ai4cc.billing.domain.model;
 
+import java.util.List;
 import java.util.Objects;
 
 // The deterministic result the billing context hands to the answer engine (TASK-BE-045, ADR-0052):
 // the outcome, the grounded text (a fully-computed explanation the LLM may only rephrase — DEC-002 —
 // or a safe operational/hand-off message), whether the turn must escalate fail-closed, the escalation
-// code the conversation seam maps to an EscalationReason, and a provisional confidence. The billing
-// context owns escalation as a stable code string so it never depends on the conversation context.
+// code the conversation seam maps to an EscalationReason, and a provisional confidence. causeCodes
+// are the catalogue enum names only — no amounts, no labels — so telemetry can say which cause
+// fired without carrying invoice content. The billing context owns escalation as a stable code
+// string so it never depends on the conversation context.
 public record BillingExplanation(BillingExplanationOutcome outcome, String text, boolean escalate,
-        String escalationCode, Double confidence, String reason) {
+        String escalationCode, Double confidence, String reason, List<String> causeCodes) {
 
     public static final String CODE_IDENTITY_UNVERIFIED = "identity_unverified";
     public static final String CODE_BILLING_UNEXPLAINED = "billing_unexplained";
@@ -23,19 +26,31 @@ public record BillingExplanation(BillingExplanationOutcome outcome, String text,
     public BillingExplanation {
         Objects.requireNonNull(outcome, "outcome must not be null");
         Objects.requireNonNull(text, "text must not be null");
+        causeCodes = causeCodes == null ? List.of() : List.copyOf(causeCodes);
     }
 
     public static BillingExplanation explained(String text, double confidence) {
-        return new BillingExplanation(BillingExplanationOutcome.EXPLAINED, text, false, null, confidence, null);
+        return explained(text, confidence, List.of());
+    }
+
+    public static BillingExplanation explained(String text, double confidence, List<String> causeCodes) {
+        return new BillingExplanation(
+                BillingExplanationOutcome.EXPLAINED, text, false, null, confidence, null, causeCodes);
     }
 
     public static BillingExplanation partiallyExplained(String text, double confidence) {
-        return new BillingExplanation(BillingExplanationOutcome.PARTIALLY_EXPLAINED, text, false, null, confidence, null);
+        return partiallyExplained(text, confidence, List.of());
+    }
+
+    public static BillingExplanation partiallyExplained(String text, double confidence, List<String> causeCodes) {
+        return new BillingExplanation(
+                BillingExplanationOutcome.PARTIALLY_EXPLAINED, text, false, null, confidence, null, causeCodes);
     }
 
     public static BillingExplanation identityUnresolved(String text) {
         return new BillingExplanation(
-                BillingExplanationOutcome.IDENTITY_UNRESOLVED, text, true, CODE_IDENTITY_UNVERIFIED, null, null);
+                BillingExplanationOutcome.IDENTITY_UNRESOLVED, text, true, CODE_IDENTITY_UNVERIFIED, null, null,
+                List.of());
     }
 
     public static BillingExplanation notEnoughData(String text) {
@@ -43,12 +58,18 @@ public record BillingExplanation(BillingExplanationOutcome outcome, String text,
     }
 
     public static BillingExplanation notEnoughData(String text, String reason) {
+        return notEnoughData(text, reason, List.of());
+    }
+
+    public static BillingExplanation notEnoughData(String text, String reason, List<String> causeCodes) {
         return new BillingExplanation(
-                BillingExplanationOutcome.NOT_ENOUGH_DATA, text, true, CODE_BILLING_UNEXPLAINED, null, reason);
+                BillingExplanationOutcome.NOT_ENOUGH_DATA, text, true, CODE_BILLING_UNEXPLAINED, null, reason,
+                causeCodes);
     }
 
     public static BillingExplanation notABillingRequest(String text) {
-        return new BillingExplanation(BillingExplanationOutcome.NOT_A_BILLING_REQUEST, text, false, null, null, null);
+        return new BillingExplanation(
+                BillingExplanationOutcome.NOT_A_BILLING_REQUEST, text, false, null, null, null, List.of());
     }
 
     // True when the text is a grounded explanation the LLM should rephrase; false when the text is a

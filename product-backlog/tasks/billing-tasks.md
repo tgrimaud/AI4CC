@@ -1054,3 +1054,12 @@ unnecessary low-confidence caveat/escalation.
 ### Out Of Scope
 
 - Any change to the opaque CHANGED-subscription behaviour (stays UNEXPLAINED).
+
+## TASK-BE-073 — Attribute invoice differences to the ADR-0057 cause catalogue
+
+**Status:** 🟢 Open (2026-10-15) — Sprint 20. Implementation on `task/TASK-BE-073-invoice-difference-causes`. Backend tests green (797). Adversarial review 95/100 (Pass). Not merged.
+**Ticket:** `product-backlog/tasks/task-be-073-invoice-difference-causes.md`
+**Decision:** `docs/architecture/adrs/ADR-0057-invoice-difference-cause-catalogue.md`
+
+Refines the cause set delivered by TASK-BE-067. The running engine keeps the
+TASK-BE-067 codes until this ticket is implemented.

@@ -1,13 +1,22 @@
 package com.ai4cc.billing.domain.service;
 
+import com.ai4cc.billing.domain.model.BillingCause;
+import com.ai4cc.billing.domain.model.BillingCauseType;
+import com.ai4cc.billing.domain.model.ExplanationConfidence;
 import com.ai4cc.billing.domain.model.ExplanationReadiness;
 import com.ai4cc.billing.domain.model.Invoice;
 import com.ai4cc.billing.domain.model.InvoiceComparison;
+import com.ai4cc.billing.domain.model.ReadinessReason;
 import com.ai4cc.billing.domain.model.valueobject.AccountId;
+import com.ai4cc.billing.domain.model.valueobject.Money;
 import com.ai4cc.billing.infrastructure.fixtures.BssBillingFixtures;
 import com.ai4cc.billing.infrastructure.fixtures.EirB2cSampleFixtures;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+import java.util.Currency;
+import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -91,6 +100,67 @@ class BillingExplanationComposerTest {
         assertThat(composer.cannotVerify("en")).contains("advisor");
         assertThat(composer.notEnoughData("fr")).contains("conseiller");
         assertThat(composer.notABillingRequest("en")).contains("bill");
+    }
+
+    @Test
+    void every_voiced_cause_has_a_french_and_an_english_phrase() {
+        // GIVEN one comparison per catalogue cause, with a zero residual
+        Invoice previous = fixture("eir-001", "2026-01");
+        Invoice current = fixture("eir-001", "2026-02");
+        Money impact = Money.ofMinorUnits(100L, Currency.getInstance("EUR"));
+        Money none = Money.ofMinorUnits(0L, impact.currency());
+        ExplanationReadiness readiness = new ExplanationReadiness(
+                ExplanationConfidence.EXPLAINABLE, ReadinessReason.FULLY_EXPLAINED, false, none);
+        Map<BillingCauseType, String> french = Map.ofEntries(
+                Map.entry(BillingCauseType.PLAN_CHANGE, "changement d'offre"),
+                Map.entry(BillingCauseType.TARIFF_INCREASE, "hausse de tarif"),
+                Map.entry(BillingCauseType.SPEED_UPGRADE, "débit"),
+                Map.entry(BillingCauseType.ADDON_ADDED, "nouveau service"),
+                Map.entry(BillingCauseType.ADDON_REMOVED, "retrait d'un service"),
+                Map.entry(BillingCauseType.DISCOUNT_ENDED, "fin d'une remise"),
+                Map.entry(BillingCauseType.DISCOUNT_ADDED, "début d'une remise"),
+                Map.entry(BillingCauseType.DEVICE_INSTALLMENT_ENDED, "mensualités"),
+                Map.entry(BillingCauseType.LATE_PAYMENT_FEE, "frais de retard"),
+                Map.entry(BillingCauseType.CHANGE_CYCLE, "cycle de facturation"),
+                Map.entry(BillingCauseType.USAGE_OVERAGE, "dépassement"),
+                Map.entry(BillingCauseType.TAX_CHANGE, "variation de taxe"),
+                Map.entry(BillingCauseType.BILLING_ADJUSTMENT, "ajustement"),
+                Map.entry(BillingCauseType.ACTIVATION_FEE, "frais d'activation"),
+                Map.entry(BillingCauseType.ONE_OFF_BUNDLE, "bundle ponctuel"));
+        Map<BillingCauseType, String> english = Map.ofEntries(
+                Map.entry(BillingCauseType.PLAN_CHANGE, "plan change"),
+                Map.entry(BillingCauseType.TARIFF_INCREASE, "tariff increase"),
+                Map.entry(BillingCauseType.SPEED_UPGRADE, "speed change"),
+                Map.entry(BillingCauseType.ADDON_ADDED, "new service"),
+                Map.entry(BillingCauseType.ADDON_REMOVED, "service removed"),
+                Map.entry(BillingCauseType.DISCOUNT_ENDED, "end of a discount"),
+                Map.entry(BillingCauseType.DISCOUNT_ADDED, "start of a discount"),
+                Map.entry(BillingCauseType.DEVICE_INSTALLMENT_ENDED, "device installment"),
+                Map.entry(BillingCauseType.LATE_PAYMENT_FEE, "late-payment"),
+                Map.entry(BillingCauseType.CHANGE_CYCLE, "billing-cycle"),
+                Map.entry(BillingCauseType.USAGE_OVERAGE, "usage over"),
+                Map.entry(BillingCauseType.TAX_CHANGE, "tax change"),
+                Map.entry(BillingCauseType.BILLING_ADJUSTMENT, "adjustment"),
+                Map.entry(BillingCauseType.ACTIVATION_FEE, "activation fee"),
+                Map.entry(BillingCauseType.ONE_OFF_BUNDLE, "one-off bundle"));
+        assertThat(french.keySet()).containsExactlyInAnyOrderElementsOf(
+                java.util.Arrays.stream(BillingCauseType.values())
+                        .filter(type -> type != BillingCauseType.UNEXPLAINED)
+                        .toList());
+
+        // WHEN each cause is composed
+        for (BillingCauseType type : french.keySet()) {
+            InvoiceComparison comparison = new InvoiceComparison(previous, current, impact, List.of(),
+                    List.of(new BillingCause(type, impact, List.of())), none);
+            String fr = composer.compose(comparison, readiness, "fr");
+            String en = composer.compose(comparison, readiness, "en");
+
+            // THEN the phrase is present and the unexplained bucket is not spoken as a cause
+            assertThat(fr).contains(french.get(type));
+            assertThat(en).contains(english.get(type));
+            assertThat(fr).doesNotContain("non expliquée");
+            assertThat(en).doesNotContain("unexplained part");
+        }
     }
 
     private static Invoice fixture(String account, String periodSuffix) {

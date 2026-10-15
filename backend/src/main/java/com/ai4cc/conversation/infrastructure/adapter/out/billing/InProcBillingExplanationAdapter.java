@@ -8,9 +8,14 @@ import com.ai4cc.conversation.domain.model.valueobject.BillingGrounding;
 import com.ai4cc.conversation.domain.model.valueobject.EscalationReason;
 import com.ai4cc.conversation.domain.port.out.BillingExplanationPort;
 import com.ai4cc.shared.observability.BackendTelemetry;
+import com.ai4cc.shared.observability.CorrelationId;
 import com.ai4cc.shared.observability.Slices;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
+import java.util.List;
+import java.util.stream.Collectors;
 
 // Outbound seam from the answer engine to the billing context (TASK-BE-045, ADR-0052), mirroring the
 // knowledge retrieval seam (ADR-0027). It translates the conversation-owned request into a billing
@@ -20,6 +25,7 @@ import java.time.Duration;
 // dimensions only, never the transcript, customer reference or invoice content (privacy-safe).
 public class InProcBillingExplanationAdapter implements BillingExplanationPort {
 
+    private static final Logger log = LoggerFactory.getLogger(InProcBillingExplanationAdapter.class);
     private static final String PROVIDER = "billing";
 
     private final ExplainBillingUseCase explainBilling;
@@ -39,6 +45,7 @@ public class InProcBillingExplanationAdapter implements BillingExplanationPort {
             BillingExplanation explanation = explainBilling.explain(toQuery(request));
             outcome = explanation.outcome().name().toLowerCase(java.util.Locale.ROOT);
             reason = explanation.reason();
+            logCauses(outcome, explanation.causeCodes());
             return toGrounding(explanation);
         } finally {
             telemetry.recordLatency(
@@ -68,5 +75,24 @@ public class InProcBillingExplanationAdapter implements BillingExplanationPort {
             return EscalationReason.IDENTITY_UNVERIFIED;
         }
         return EscalationReason.BILLING_UNEXPLAINED;
+    }
+
+    // Enum names only. Amounts and labels stay out of the log (ADR-0057).
+    private static void logCauses(String outcome, List<String> causeCodes) {
+        log.info("[BILLING] outcome={} causes={} correlation_id={}",
+                outcome, joinCauses(causeCodes), CorrelationId.current());
+    }
+
+    private static String joinCauses(List<String> causeCodes) {
+        if (causeCodes == null || causeCodes.isEmpty()) {
+            return "n/a";
+        }
+        String joined = causeCodes.stream().filter(InProcBillingExplanationAdapter::causeCode)
+                .collect(Collectors.joining(","));
+        return joined.isBlank() ? "n/a" : joined;
+    }
+
+    private static boolean causeCode(String code) {
+        return code != null && code.matches("[A-Z0-9_]+");
     }
 }

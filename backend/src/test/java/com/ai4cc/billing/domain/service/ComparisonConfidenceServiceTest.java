@@ -103,11 +103,11 @@ class ComparisonConfidenceServiceTest {
     @Test
     void a_delta_attributed_only_to_the_unexplained_bucket_escalates() {
         // GIVEN the coarse Eir case: a subscription present in BOTH months whose amount moved +500 with
-        // no finer line to say why (an opaque CHANGED subscription → UNEXPLAINED). An appearing/removed
-        // subscription would instead be SERVICE_ADDED/REMOVED (explainable, TASK-BE-067).
+        // no finer line to say why (a same-label price drop → UNEXPLAINED). An appearing subscription
+        // is ADDON_ADDED (ADR-0057). A same-label price rise is TARIFF_INCREASE.
         InvoiceComparison comparison = comparisonService.compare(
-                header("prev", 500L, List.of(line("base", LineCategory.SUBSCRIPTION, 500L))),
-                header("curr", 1000L, List.of(line("base", LineCategory.SUBSCRIPTION, 1000L))));
+                header("prev", 1000L, List.of(line("base", LineCategory.SUBSCRIPTION, 1000L))),
+                header("curr", 500L, List.of(line("base", LineCategory.SUBSCRIPTION, 500L))));
 
         // WHEN the gate assesses it
         ExplanationReadiness readiness = gate.assess(comparison);
@@ -116,7 +116,7 @@ class ComparisonConfidenceServiceTest {
         assertThat(readiness.confidence()).isEqualTo(ExplanationConfidence.INSUFFICIENT);
         assertThat(readiness.reason()).isEqualTo(ReadinessReason.RESIDUAL_TOO_HIGH);
         assertThat(readiness.escalate()).isTrue();
-        assertThat(readiness.unexplainedAmount().minorUnits()).isEqualTo(500L);
+        assertThat(readiness.unexplainedAmount().minorUnits()).isEqualTo(-500L);
     }
 
     @Test
