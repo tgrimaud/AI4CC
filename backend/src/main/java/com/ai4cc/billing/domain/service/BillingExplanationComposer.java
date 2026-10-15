@@ -21,7 +21,9 @@ public class BillingExplanationComposer {
         boolean fr = isFrench(languageCode);
         StringBuilder text = new StringBuilder(openingLine(comparison.totalDelta(), fr));
         for (BillingCause cause : comparison.causes()) {
-            text.append(' ').append(causeLine(cause, fr));
+            for (Money impact : AddonFamilies.impacts(cause)) {
+                text.append(' ').append(phrase(cause.type(), impact, fr));
+            }
         }
         if (readiness.confidence() == ExplanationConfidence.PARTIAL) {
             text.append(' ').append(residualLine(readiness.unexplainedAmount(), fr));
@@ -67,12 +69,12 @@ public class BillingExplanationComposer {
                 + " compared with last month.";
     }
 
-    private String causeLine(BillingCause cause, boolean fr) {
-        String label = label(cause.type(), fr);
+    private String phrase(BillingCauseType type, Money impact, boolean fr) {
+        String label = label(type, fr);
         if (fr) {
-            return "En cause : " + label + " pour " + signed(cause.impact()) + ".";
+            return "En cause : " + label + " pour " + signed(impact) + ".";
         }
-        return "This is due to " + label + " (" + signed(cause.impact()) + ").";
+        return "This is due to " + label + " (" + signed(impact) + ").";
     }
 
     private String residualLine(Money residual, boolean fr) {
@@ -102,15 +104,21 @@ public class BillingExplanationComposer {
 
     private String label(BillingCauseType type, boolean fr) {
         return switch (type) {
-            case DISCOUNT_EXPIRY -> fr ? "la fin d'une remise" : "the end of a discount";
+            case PLAN_CHANGE -> fr ? "un changement d'offre" : "a plan change";
+            case TARIFF_INCREASE -> fr ? "une hausse de tarif" : "a tariff increase";
+            case SPEED_UPGRADE -> fr ? "un changement de débit" : "a speed change";
+            case ADDON_ADDED -> fr ? "l'ajout d'un nouveau service" : "a new service added";
+            case ADDON_REMOVED -> fr ? "le retrait d'un service" : "a service removed";
+            case DISCOUNT_ENDED -> fr ? "la fin d'une remise" : "the end of a discount";
+            case DISCOUNT_ADDED -> fr ? "le début d'une remise" : "the start of a discount";
+            case DEVICE_INSTALLMENT_ENDED -> fr ? "la fin des mensualités d'un appareil" : "the end of a device installment";
+            case LATE_PAYMENT_FEE -> fr ? "des frais de retard" : "a late-payment fee";
+            case CHANGE_CYCLE -> fr ? "un changement de cycle de facturation" : "a billing-cycle change";
             case USAGE_OVERAGE -> fr ? "un dépassement de consommation" : "usage over your plan";
-            case OPTION_CHANGE -> fr ? "un changement d'option" : "an option change";
-            case SERVICE_ADDED -> fr ? "l'ajout d'un nouveau service" : "a new service added";
-            case SERVICE_REMOVED -> fr ? "la suppression d'un service" : "a service removed";
-            case PRORATION -> fr ? "un ajustement au prorata" : "a pro-rata adjustment";
-            case TAX -> fr ? "une variation de taxe" : "a tax change";
-            case ONE_OFF_FEE -> fr ? "des frais ponctuels" : "a one-off charge";
-            case ADJUSTMENT -> fr ? "un ajustement" : "an adjustment";
+            case TAX_CHANGE -> fr ? "une variation de taxe" : "a tax change";
+            case BILLING_ADJUSTMENT -> fr ? "un ajustement" : "an adjustment";
+            case ACTIVATION_FEE -> fr ? "des frais d'activation" : "an activation fee";
+            case ONE_OFF_BUNDLE -> fr ? "un bundle ponctuel" : "a one-off bundle";
             case UNEXPLAINED -> fr ? "une part non expliquée" : "an unexplained part";
         };
     }

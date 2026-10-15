@@ -2,9 +2,9 @@
 
 ## Status
 
-Accepted (target, 2026-10-15). Not implemented. The running comparison engine still
-emits the coarser codes from the ADR-0003 amendment (TASK-BE-067) until
-**TASK-BE-073** lands.
+Accepted (2026-10-15). Implemented by **TASK-BE-073** on
+`task/TASK-BE-073-invoice-difference-causes`. The comparison attributes each
+line delta to this catalogue. Not yet merged into the sprint branch.
 
 ## Context
 
@@ -53,6 +53,7 @@ the residual and can still escalate (BR-003). No LLM chooses the cause.
 | `ADDON_ADDED` | An extra service or option was added (TV, mobile, pack), including that service's mid-cycle prorata. | up | An option or a whole service line appears. Its prorata on the same new service is part of this cause. |
 | `ADDON_REMOVED` | An extra service or option was removed. | down | An option or a whole service line disappears. |
 | `DISCOUNT_ENDED` | A discount that was on the previous invoice is absent now. | up | A discount line present before, absent now. |
+| `DISCOUNT_ADDED` | A discount that was absent before is on the current invoice. | down | A discount line absent before, present now. |
 | `DEVICE_INSTALLMENT_ENDED` | Device installments stopped. | down | A device-installment line present before, absent now. |
 | `LATE_PAYMENT_FEE` | A late-payment fee was charged. | up | A charge whose description matches the confirmed late-fee labels. |
 | `CHANGE_CYCLE` | Proration because the billing cycle itself changed. | up or down | Not decided from the two invoices alone. |
@@ -60,6 +61,7 @@ the residual and can still escalate (BR-003). No LLM chooses the cause.
 | `TAX_CHANGE` | The tax moved on its own. | up or down | The tax line amount differs, and that difference is not the VAT already carried by another named cause. |
 | `BILLING_ADJUSTMENT` | A credit, goodwill gesture, or correction. | up or down | An adjustment line appears, disappears, or changes amount. |
 | `ACTIVATION_FEE` | A one-time activation or installation fee. | up or down | An activation/installation line is on one invoice and not the other (for example "Broadband activation fee"). |
+| `ONE_OFF_BUNDLE` | A bundle bought or dropped as a single charge. | up or down | A one-off line whose description contains "bundle" is on one invoice and not the other (for example "1GB USA/Canada Roaming Bundle"). |
 
 Rules that keep the story from being told twice:
 
@@ -68,6 +70,10 @@ Rules that keep the story from being told twice:
 - Replacing the offer (the subscription label changes) is `PLAN_CHANGE`.
 - The partial first period of a service that just appeared ("eir TV from 25 Sep
   until 11 Oct") is part of `ADDON_ADDED`, not `CHANGE_CYCLE`.
+- When that same partial period, and the discount prorata of the same short
+  window, are on the previous invoice only while the subscription stays, they
+  remain that add-on. They are not a discount that ended, and they are spoken
+  apart from a different service that appeared on the current invoice.
 - If VAT rises only because a named cause added taxable amount, the explanation
   voices that cause. `TAX_CHANGE` is used only when the tax movement is not
   already inside another named cause.
@@ -80,6 +86,10 @@ Rules that keep the story from being told twice:
   same-label price rise is `TARIFF_INCREASE`.
 - `CHANGE_CYCLE` stays in the catalogue and is not attributed from invoice lines
   alone. There is no CRM cycle-change signal on this path.
+- A one-off whose description contains "bundle" is `ONE_OFF_BUNDLE`, not
+  `USAGE_OVERAGE` and not `ACTIVATION_FEE`. Any other one-off stays
+  `UNEXPLAINED` unless it is activation, a confirmed late fee, or a confirmed
+  ended installment.
 
 The spoken explanation uses one FR and one EN phrase per cause (owned next to
 the existing composer phrases). Amounts stay those computed by the comparison.
@@ -93,9 +103,13 @@ The LLM does not invent a cause or an amount.
   no longer voiced as their own causes.
 - An in-place subscription price rise with an unchanged label becomes
   `TARIFF_INCREASE` and is explained, instead of escalating as `UNEXPLAINED`.
-- A same-label price drop, an in-place option price change, a discount that
-  appears, and any one-off that is neither activation, a confirmed late fee, nor
-  a confirmed ended installment stay `UNEXPLAINED`.
+- A same-label price drop, an in-place option price change, and a discount whose
+  amount changes on the same line stay `UNEXPLAINED`. A one-off stays
+  `UNEXPLAINED` unless it is activation, a confirmed late fee, a confirmed ended
+  installment, or a bundle (`ONE_OFF_BUNDLE`).
+- A discount line that appears is `DISCOUNT_ADDED` (bill down). A discount line
+  that disappears stays `DISCOUNT_ENDED` (bill up). Added 2026-10-15 after the
+  first catalogue, so a new TV or mobile discount is explained with the add-on.
 - Confidence and escalation (BR-003) are unchanged: only `UNEXPLAINED` amounts
   count as residual.
 - Wording, domain tests, and the eir B2C comparison fixtures must expect the new
@@ -114,8 +128,8 @@ The LLM does not invent a cause or an amount.
 
 ## Related Documents
 
-- ADR-0003 (deterministic comparison; the TASK-BE-067 amendment remains the
-  behaviour until this ADR is implemented)
+- ADR-0003 (deterministic comparison; the 2026-10-05 amendment records the
+  coarser codes this catalogue replaces)
 - ADR-0005 (extract the PDF before comparison)
 - ADR-0052 (the LLM phrases the pre-computed explanation)
 - `product-backlog/tasks/task-be-073-invoice-difference-causes.md`

@@ -1,5 +1,8 @@
 package com.ai4cc.conversation.infrastructure.adapter.out.billing;
 
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import com.ai4cc.billing.domain.model.BillingExplanation;
 import com.ai4cc.billing.domain.model.valueobject.BillingExplanationQuery;
 import com.ai4cc.billing.domain.port.in.ExplainBillingUseCase;
@@ -11,6 +14,9 @@ import com.ai4cc.shared.observability.Slices;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -82,6 +88,26 @@ class InProcBillingExplanationAdapterTest {
         // THEN the BILLING slice keeps the stable not_enough_data outcome but carries the fine reason
         assertThat(registry.find("voice_support.slice").tag("slice", Slices.BILLING)
                 .tag("outcome", "not_enough_data").tag("reason", "evidence_unfetchable").timer()).isNotNull();
+    }
+
+    @Test
+    void logs_cause_codes_without_the_explanation_text() {
+        // GIVEN an explanation whose text carries an amount and whose causes are enum names
+        Logger logger = (Logger) LoggerFactory.getLogger(InProcBillingExplanationAdapter.class);
+        ListAppender<ILoggingEvent> appender = new ListAppender<>();
+        appender.start();
+        logger.addAppender(appender);
+
+        // WHEN it crosses the billing seam
+        explain(BillingExplanation.explained(
+                "Your bill increased by 5.00 €.", 0.9, List.of("ADDON_ADDED", "ACTIVATION_FEE")));
+
+        // THEN the log carries the codes only
+        logger.detachAppender(appender);
+        assertThat(appender.list).anySatisfy(event -> {
+            assertThat(event.getFormattedMessage()).contains("causes=ADDON_ADDED,ACTIVATION_FEE");
+            assertThat(event.getFormattedMessage()).doesNotContain("5.00");
+        });
     }
 
     private BillingGrounding explain(BillingExplanation explanation) {

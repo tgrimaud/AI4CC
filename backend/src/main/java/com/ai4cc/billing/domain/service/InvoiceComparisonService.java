@@ -14,6 +14,7 @@ import com.ai4cc.billing.domain.port.in.CompareInvoicesUseCase;
 import java.util.ArrayList;
 import java.util.Currency;
 import java.util.EnumMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -21,13 +22,21 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-// Deterministic invoice comparison (ADR-0003, DEC-002): matches lines by code across the two
-// invoices, computes each line's signed contribution on the tax-included (TTC) basis, attributes it
-// to a business cause from its category, and exposes the residual the line deltas do not account for
+// Deterministic invoice comparison (ADR-0003, ADR-0057, DEC-002): matches lines by code across
+// the two invoices, computes each line's signed contribution on the tax-included (TTC) basis,
+// attributes it to a catalogue cause, and exposes the residual no named cause accounts for
 // (BR-003 — never hidden). No LLM, no guessing: the engine only does exact arithmetic.
 public class InvoiceComparisonService implements CompareInvoicesUseCase {
 
-    private static final Map<LineCategory, BillingCauseType> CAUSE_BY_CATEGORY = causeByCategory();
+    private final InvoiceCauseAttributor attributor;
+
+    public InvoiceComparisonService() {
+        this(List.of(), List.of());
+    }
+
+    public InvoiceComparisonService(List<String> lateFeeLabels, List<String> deviceInstallmentLabels) {
+        this.attributor = new InvoiceCauseAttributor(lateFeeLabels, deviceInstallmentLabels);
+    }
 
     @Override
     public InvoiceComparison compare(Invoice previous, Invoice current) {
@@ -35,8 +44,9 @@ public class InvoiceComparisonService implements CompareInvoicesUseCase {
         Objects.requireNonNull(current, "current invoice must not be null");
         Money totalDelta = current.totals().taxIncluded().minus(previous.totals().taxIncluded());
         Currency currency = totalDelta.currency();
-        List<CategorizedDelta> categorized = lineDeltas(previous, current);
-        List<LineDelta> deltas = categorized.stream().map(CategorizedDelta::delta).toList();
+        List<PairedLine> pairs = lineDeltas(previous, current);
+        List<AttributedLine> categorized = attributor.attribute(pairs, stayedSubscriptionTexts(previous, current));
+        List<LineDelta> deltas = categorized.stream().map(AttributedLine::delta).toList();
         List<BillingCause> causes = causes(categorized, currency);
         // The residual is what no *identified* business cause accounts for: the arithmetic gap between
         // the header total and the line deltas PLUS any amount that fell into the UNEXPLAINED bucket
@@ -47,12 +57,12 @@ public class InvoiceComparisonService implements CompareInvoicesUseCase {
         return new InvoiceComparison(previous, current, totalDelta, deltas, causes, unexplained);
     }
 
-    private List<CategorizedDelta> lineDeltas(Invoice previous, Invoice current) {
+    private List<PairedLine> lineDeltas(Invoice previous, Invoice current) {
         Map<String, InvoiceItem> previousLines = index(previous.lines());
         Map<String, InvoiceItem> currentLines = index(current.lines());
-        List<CategorizedDelta> result = new ArrayList<>();
+        List<PairedLine> result = new ArrayList<>();
         for (String key : union(previousLines, currentLines)) {
-            CategorizedDelta delta = delta(previousLines.get(key), currentLines.get(key));
+            PairedLine delta = delta(previousLines.get(key), currentLines.get(key));
             if (delta != null) {
                 result.add(delta);
             }
@@ -60,7 +70,7 @@ public class InvoiceComparisonService implements CompareInvoicesUseCase {
         return result;
     }
 
-    private CategorizedDelta delta(InvoiceItem previous, InvoiceItem current) {
+    private PairedLine delta(InvoiceItem previous, InvoiceItem current) {
         InvoiceItem present = current != null ? current : previous;
         Currency currency = present.amounts().taxIncluded().currency();
         Money previousAmount = previous != null ? previous.amounts().taxIncluded() : Money.zero(currency);
@@ -71,13 +81,36 @@ public class InvoiceComparisonService implements CompareInvoicesUseCase {
         }
         ChangeKind changeKind = kind(previous, current);
         LineDelta lineDelta = new LineDelta(label(present), changeKind, previousAmount, currentAmount, contribution);
-        return new CategorizedDelta(lineDelta, cause(present.category(), changeKind));
+        return new PairedLine(previous, current, lineDelta);
     }
 
-    private List<BillingCause> causes(List<CategorizedDelta> categorized, Currency currency) {
+    private static List<String> stayedSubscriptionTexts(Invoice previous, Invoice current) {
+        Set<String> before = subscriptionKeys(previous);
+        List<String> texts = new ArrayList<>();
+        for (InvoiceItem line : current.lines()) {
+            if (line.category() == LineCategory.SUBSCRIPTION && before.contains(label(line))) {
+                texts.add(InvoiceLineText.normalize(InvoiceLineText.describe(line)));
+            }
+        }
+        return texts;
+    }
+
+    private static Set<String> subscriptionKeys(Invoice invoice) {
+        Set<String> keys = new HashSet<>();
+        for (InvoiceItem line : invoice.lines()) {
+            if (line.category() == LineCategory.SUBSCRIPTION) {
+                keys.add(label(line));
+            }
+        }
+        return keys;
+    }
+
+    private List<BillingCause> causes(List<AttributedLine> categorized, Currency currency) {
         Map<BillingCauseType, List<LineDelta>> byCause = new EnumMap<>(BillingCauseType.class);
-        for (CategorizedDelta item : categorized) {
-            byCause.computeIfAbsent(item.cause(), key -> new ArrayList<>()).add(item.delta());
+        for (AttributedLine item : categorized) {
+            if (item.cause() != null) {
+                byCause.computeIfAbsent(item.cause(), key -> new ArrayList<>()).add(item.delta());
+            }
         }
         List<BillingCause> result = new ArrayList<>();
         for (BillingCauseType type : BillingCauseType.values()) {
@@ -96,9 +129,9 @@ public class InvoiceComparisonService implements CompareInvoicesUseCase {
 
     // Sum of the contributions attributed to an identified business cause (everything except the
     // UNEXPLAINED bucket) — the part the explanation can actually stand behind.
-    private static Money explainedSum(List<CategorizedDelta> categorized, Currency currency) {
+    private static Money explainedSum(List<AttributedLine> categorized, Currency currency) {
         return categorized.stream()
-                .filter(item -> item.cause() != BillingCauseType.UNEXPLAINED)
+                .filter(AttributedLine::countsAsExplained)
                 .map(item -> item.delta().contribution())
                 .reduce(Money.zero(currency), Money::plus);
     }
@@ -152,34 +185,4 @@ public class InvoiceComparisonService implements CompareInvoicesUseCase {
         return item.type() != null ? item.type() : item.category().name();
     }
 
-    // A subscription line that appeared / disappeared is a new / removed service — a named cause the
-    // explanation can voice (TASK-BE-067). A subscription that merely CHANGED in place has no finer line
-    // to say why, so it stays UNEXPLAINED (the opaque recurring-amount move). Non-subscription categories
-    // are mapped by category alone.
-    private static BillingCauseType cause(LineCategory category, ChangeKind kind) {
-        if (category == LineCategory.SUBSCRIPTION) {
-            return switch (kind) {
-                case APPEARED -> BillingCauseType.SERVICE_ADDED;
-                case DISAPPEARED -> BillingCauseType.SERVICE_REMOVED;
-                default -> BillingCauseType.UNEXPLAINED;
-            };
-        }
-        return CAUSE_BY_CATEGORY.getOrDefault(category, BillingCauseType.UNEXPLAINED);
-    }
-
-    private static Map<LineCategory, BillingCauseType> causeByCategory() {
-        Map<LineCategory, BillingCauseType> map = new EnumMap<>(LineCategory.class);
-        map.put(LineCategory.DISCOUNT, BillingCauseType.DISCOUNT_EXPIRY);
-        map.put(LineCategory.USAGE, BillingCauseType.USAGE_OVERAGE);
-        map.put(LineCategory.OVERAGE, BillingCauseType.USAGE_OVERAGE);
-        map.put(LineCategory.OPTION, BillingCauseType.OPTION_CHANGE);
-        map.put(LineCategory.PRORATA, BillingCauseType.PRORATION);
-        map.put(LineCategory.TAX, BillingCauseType.TAX);
-        map.put(LineCategory.ONE_OFF, BillingCauseType.ONE_OFF_FEE);
-        map.put(LineCategory.ADJUSTMENT, BillingCauseType.ADJUSTMENT);
-        return map;
-    }
-
-    private record CategorizedDelta(LineDelta delta, BillingCauseType cause) {
-    }
 }

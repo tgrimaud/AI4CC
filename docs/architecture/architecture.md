@@ -35,8 +35,8 @@
 >   comparison → confidence gate) behind the answer engine: the LLM only rephrases the
 >   grounded, pre-computed explanation (DEC-002) and the bot escalates fail-closed
 >   (unverified identity / unexplained change) by-reference. The target
->   difference catalogue is ADR-0057 (TASK-BE-073, not yet implemented); the
->   running engine still uses the coarser TASK-BE-067 cause codes. **Billing routing on
+>   difference catalogue is ADR-0057 (TASK-BE-073): fifteen named causes, with
+>   `UNEXPLAINED` still the fail-closed residual. **Billing routing on
 >   `/converse` is shipped** (ADR-0055): a billing opener on the voice path runs the
 >   same deterministic chain, and a vague billing opener triggers the bounded
 >   **clarify** dialogue (US-043 / ADR-0056, configurable sub-types TASK-BE-072).

@@ -1,11 +1,14 @@
 package com.ai4cc.billing.infrastructure.adapter.out.bss.eir;
 
+import com.ai4cc.billing.domain.model.BillingCauseType;
 import com.ai4cc.billing.domain.model.Invoice;
+import com.ai4cc.billing.domain.model.InvoiceComparison;
 import com.ai4cc.billing.domain.model.InvoiceItem;
 import com.ai4cc.billing.domain.model.valueobject.AccountId;
 import com.ai4cc.billing.domain.model.valueobject.InvoiceId;
 import com.ai4cc.billing.domain.model.valueobject.InvoiceSummary;
 import com.ai4cc.billing.domain.model.valueobject.LineCategory;
+import com.ai4cc.billing.domain.service.InvoiceComparisonService;
 import com.ai4cc.billing.infrastructure.adapter.out.bss.eir.BillingEnquiryClient.BillAmount;
 import com.ai4cc.billing.infrastructure.adapter.out.bss.eir.BillingEnquiryClient.GalaxionUser;
 import com.ai4cc.billing.infrastructure.adapter.out.bss.eir.BillingEnquiryClient.InvoiceResponse;
@@ -81,6 +84,30 @@ class EirBssBillingAdapterTest {
         assertEquals(LineCategory.SUBSCRIPTION, lines.get(0).category());
         assertEquals(3999L, lines.get(0).amounts().taxIncluded().minorUnits());
         assertTrue(lines.stream().noneMatch(l -> l.category() == LineCategory.TAX), "VAT is inside the total, never a line");
+        assertEquals("Recurring charges", lines.get(0).evidence().text());
+    }
+
+    @Test
+    void fetchInvoice_recurringPriceRise_isATariffIncreaseNotAPlanChange() {
+        // GIVEN two months of the same recurring bucket, with a higher amount
+        FakeEnquiryClient enquiry = new FakeEnquiryClient();
+        EirBssBillingAdapter adapter = adapterWith(enquiry, new FakeServiceClient(List.of()));
+        enquiry.next = Optional.of(response(3999L, 2608010000000001L));
+        Invoice previous = adapter.fetchInvoice(AccountId.of("5"), InvoiceId.of("2608010000000001")).orElseThrow();
+        enquiry.next = Optional.of(response(4599L, 2608020000000002L));
+        Invoice current = adapter.fetchInvoice(AccountId.of("5"), InvoiceId.of("2608020000000002")).orElseThrow();
+
+        // WHEN they are compared
+        InvoiceComparison comparison = new InvoiceComparisonService().compare(previous, current);
+
+        // THEN the stable label makes a tariff increase, and the amount is not in the label
+        assertEquals("Recurring charges", previous.lines().get(0).evidence().text());
+        assertEquals(previous.lines().get(0).evidence().text(), current.lines().get(0).evidence().text());
+        assertFalse(previous.lines().get(0).evidence().text().contains("3999"));
+        assertEquals(1, comparison.causes().size());
+        assertEquals(BillingCauseType.TARIFF_INCREASE, comparison.causes().get(0).type());
+        assertEquals(600L, comparison.causes().get(0).impact().minorUnits());
+        assertEquals(0L, comparison.unexplainedAmount().minorUnits());
     }
 
     @Test
@@ -142,6 +169,11 @@ class EirBssBillingAdapterTest {
 
         // THEN the result is empty
         assertTrue(result.isEmpty());
+    }
+
+    private static InvoiceResponse response(long recurringCents, long invoiceId) {
+        return new InvoiceResponse(5L, invoiceId, "202608",
+                new BillAmount(recurringCents, recurringCents, 0L, 0L, 0L), "2026-09-01T00:00:00");
     }
 
     private static final class FakeEnquiryClient implements BillingEnquiryClient {
