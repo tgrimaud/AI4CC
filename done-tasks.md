@@ -16,6 +16,10 @@
   one-off bundle. `UNEXPLAINED` stays the fail-closed residual. The three eir sample accounts
   (99226126, 99224964, 99226337) are explained. Adversarial review **95/100 (Pass)**
   (`docs/qa/task-be-073-adversarial-review.md`). QA **GO** (`docs/qa/task-be-073-qa-report.md`).
+- **Deployed to eir-ai4cc-tst** as image tag `0.11.0` (Redis, both backends, both voice
+  bridges). Backend readiness uses the container healthcheck: host loopback on `:8080`
+  does not answer on these VMs. Backend and voice VIPs answer (`192.168.0.11` health UP,
+  `https://192.168.0.10` 200).
 
 ## 2026-10-14 — Sprint 19 closed + v0.10.0 released (review follow-ups)
 

@@ -4,7 +4,11 @@
 tier: "backend"
 compose_src: "backend"
 
-# HTTP health probed after `up -d` (ungated, see deployment doc).
+# Readiness is the container healthcheck (same reason as the voice tier,
+# TASK-INFRA-011). Port 8080 is firewalld source-scoped to the HAProxy nodes, so
+# a host-side probe of 127.0.0.1:8080 times out and aborts the rolling deploy.
+health_container_name: "ai4cc-backend"
+# Fallback HTTP probe, used only when health_container_name is unset.
 health_url: "http://127.0.0.1:8080/actuator/health"
 
 backend_bind: "0.0.0.0"
