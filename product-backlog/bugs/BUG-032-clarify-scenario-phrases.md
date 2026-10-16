@@ -1,7 +1,7 @@
 # BUG-032 — Scenario billing phrases skip the clarify question
 
 **Type:** Bug (conversation billing)
-**Status:** 🔵 In progress (2026-10-16) — `fix/BUG-032-clarify-scenario-phrases` off `feat/sprint-22-clarify-phrases`.
+**Status:** ✅ Released in **v0.11.2** (2026-10-16) — merged into `feat/restart-from-scratch`.
 **Detected by:** Smoke on v0.11.1 (eir-ai4cc-tst).
 **Related:** BUG-031, US-043, ADR-0055.
 

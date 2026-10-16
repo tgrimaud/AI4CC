@@ -3,6 +3,17 @@
 > **Scope: Voice Support Bot only.** This is the ledger for all `voice-support-bot`
 > work. Do not log bot work in the workspace-root `BMad/done-tasks.md`.
 
+## 2026-10-16 — Sprint 22 closed + v0.11.2 released (scenario billing phrases)
+
+**Summary:**
+
+- **Sprint 22 closed** and merged into `feat/restart-from-scratch` (`--no-ff`), then tagged
+  **v0.11.2** (CI publishes `ghcr.io/tgrimaud/ai4cc-{backend,voice}:0.11.2`).
+- **BUG-032** — a generic word such as prélèvement, service, cette, higher, usual, recognise,
+  aucune or still is no longer treated as a named line. Those scenario phrases ask first.
+  After the two clarify questions, "aucune idée" and "still no idea" hand the turn to an advisor.
+  Bundle, roaming and a named amount stay concrete.
+
 ## 2026-10-16 — Sprint 21 closed + v0.11.1 released (ask which amount)
 
 **Summary:**
