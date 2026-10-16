@@ -72,6 +72,16 @@ public record BillingExplanation(BillingExplanationOutcome outcome, String text,
                 BillingExplanationOutcome.NOT_A_BILLING_REQUEST, text, false, null, null, null, List.of());
     }
 
+    public static BillingExplanation amountDetail(String text, List<String> causeCodes) {
+        return new BillingExplanation(
+                BillingExplanationOutcome.AMOUNT_DETAIL, text, false, null, null, null, causeCodes);
+    }
+
+    public static BillingExplanation amountNotFound(String text) {
+        return new BillingExplanation(
+                BillingExplanationOutcome.AMOUNT_NOT_FOUND, text, false, null, null, null, List.of());
+    }
+
     // True when the text is a grounded explanation the LLM should rephrase; false when the text is a
     // safe operational/hand-off message to voice as-is (no LLM wording, no grounding claim).
     public boolean answerable() {
