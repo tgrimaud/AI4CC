@@ -6,6 +6,7 @@ import com.ai4cc.conversation.domain.port.in.AnswerBillingQuestionUseCase;
 import com.ai4cc.conversation.domain.port.in.ConversationRoutingUseCase;
 import com.ai4cc.conversation.domain.port.in.ConverseUseCase;
 import com.ai4cc.conversation.domain.port.out.BillingIntentPort;
+import com.ai4cc.conversation.domain.port.out.ConversationMemoryPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,8 +25,25 @@ public class ConversationRoutingService implements ConversationRoutingUseCase {
 
     public ConversationRoutingService(
             ConverseUseCase converse, AnswerBillingQuestionUseCase billing, BillingIntentPort billingIntent) {
+        this(converse, billing, billingIntent, null, 2);
+    }
+
+    public ConversationRoutingService(
+            ConverseUseCase converse,
+            AnswerBillingQuestionUseCase billing,
+            BillingIntentPort billingIntent,
+            ConversationMemoryPort memory) {
+        this(converse, billing, billingIntent, memory, 2);
+    }
+
+    public ConversationRoutingService(
+            ConverseUseCase converse,
+            AnswerBillingQuestionUseCase billing,
+            BillingIntentPort billingIntent,
+            ConversationMemoryPort memory,
+            int maxQuestions) {
         this.converse = converse;
-        this.billingRouter = new BillingRoutingService(billing, billingIntent);
+        this.billingRouter = new BillingRoutingService(billing, billingIntent, memory, maxQuestions);
     }
 
     @Override

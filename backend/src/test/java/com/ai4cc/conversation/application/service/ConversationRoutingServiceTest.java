@@ -20,18 +20,32 @@ class ConversationRoutingServiceTest {
     private final RecordingBilling billing = new RecordingBilling();
 
     @Test
-    void routes_to_billing_when_account_reference_present_and_billing_intent() {
-        // GIVEN a billing question with a channel-provided account reference
+    void asks_before_explaining_an_invoice_request_that_names_nothing() {
+        // GIVEN a billing question with a channel-provided account, and no named amount
         var router = new ConversationRoutingService(converse, billing, transcript -> true);
         var turn = new RoutableTurn("ma facture a augmenté", "conv-1", "fr", "99224964", "web_voice", "corr-1");
 
         // WHEN the turn is routed
         GeneratedAnswer answer = router.answer(turn);
 
-        // THEN the billing chain answers with the account reference; RAG is not called
+        // THEN the assistant asks which amount or service; the bill is not recited
+        assertThat(answer.text()).contains("Quel montant");
+        assertThat(billing.calls).isZero();
+        assertThat(converse.calls).isZero();
+    }
+
+    @Test
+    void routes_to_billing_when_the_customer_names_an_amount() {
+        // GIVEN a billing question that names a figure
+        var router = new ConversationRoutingService(converse, billing, transcript -> true);
+        var turn = new RoutableTurn("le 29,99 sur ma facture", "conv-1", "fr", "99224964", "web_voice", "corr-1");
+
+        // WHEN the turn is routed
+        GeneratedAnswer answer = router.answer(turn);
+
+        // THEN the billing chain explains that amount
         assertThat(answer.text()).isEqualTo("billing answer");
         assertThat(billing.lastRequest.reference()).isEqualTo("99224964");
-        assertThat(billing.lastRequest.transcript()).isEqualTo("ma facture a augmenté");
         assertThat(converse.calls).isZero();
     }
 

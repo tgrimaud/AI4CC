@@ -11,9 +11,11 @@ import com.ai4cc.conversation.domain.port.in.ConverseUseCase;
 import com.ai4cc.conversation.domain.port.out.AnswerGeneratorPort;
 import com.ai4cc.conversation.domain.port.out.BillingExplanationPort;
 import com.ai4cc.conversation.domain.port.out.BillingIntentPort;
+import com.ai4cc.conversation.domain.port.out.ConversationMemoryPort;
 import com.ai4cc.conversation.domain.service.LanguageDetector;
 import com.ai4cc.conversation.domain.service.OutputGuardrail;
 import com.ai4cc.shared.observability.BackendTelemetry;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -49,16 +51,22 @@ public class BillingSeamConfig {
     // streaming paths (TASK-BE-061 / BUG-027, ADR-0055).
     @Bean
     public BillingRoutingService billingTurnRouter(
-            AnswerBillingQuestionUseCase answerBillingQuestionUseCase, BillingIntentPort billingIntentPort) {
-        return new BillingRoutingService(answerBillingQuestionUseCase, billingIntentPort);
+            AnswerBillingQuestionUseCase answerBillingQuestionUseCase,
+            BillingIntentPort billingIntentPort,
+            ConversationMemoryPort conversationMemoryPort,
+            @Value("${voice-support.conversation.billing-clarify.max-questions:2}") int maxQuestions) {
+        return new BillingRoutingService(
+                answerBillingQuestionUseCase, billingIntentPort, conversationMemoryPort, maxQuestions);
     }
 
-    // Routes a /converse turn to the billing chain (channel-provided identity + billing intent) or RAG.
     @Bean
     public ConversationRoutingUseCase conversationRoutingUseCase(
             ConverseUseCase converseUseCase,
             AnswerBillingQuestionUseCase answerBillingQuestionUseCase,
-            BillingIntentPort billingIntentPort) {
-        return new ConversationRoutingService(converseUseCase, answerBillingQuestionUseCase, billingIntentPort);
+            BillingIntentPort billingIntentPort,
+            ConversationMemoryPort conversationMemoryPort,
+            @Value("${voice-support.conversation.billing-clarify.max-questions:2}") int maxQuestions) {
+        return new ConversationRoutingService(converseUseCase, answerBillingQuestionUseCase,
+                billingIntentPort, conversationMemoryPort, maxQuestions);
     }
 }

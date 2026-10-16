@@ -92,17 +92,28 @@ class ConverseStreamControllerBillingRoutingTest {
     }
 
     @Test
-    @DisplayName("with a channel-provided account, a billing question streams the grounded billing text")
-    void billingRouteStreamsBillingText() throws Exception {
+    @DisplayName("with a channel-provided account, a vague billing question asks before explaining")
+    void billingRouteAsksBeforeReciting() throws Exception {
         String body = dispatchBody(
                 "{\"transcript\":\"ma facture est plus élevée\",\"conversation_id\":\"c1\","
                         + "\"channel\":\"web_voice\",\"account_id\":\"99224964\"}");
 
         assertTrue(body.contains("event:chunk"), body);
-        assertTrue(body.contains(BILLING_TEXT), body);
+        assertTrue(body.contains("Quel montant"), body);
         assertTrue(body.contains("event:done"), body);
-        assertTrue(body.contains("\"grounded\":true"), body);
+        assertFalse(body.contains(BILLING_TEXT), body);
         assertFalse(body.contains(RAG_TEXT), "RAG must be bypassed on a billing turn: " + body);
+    }
+
+    @Test
+    @DisplayName("a named amount on an identified account streams the grounded billing text")
+    void namedAmountStreamsBillingText() throws Exception {
+        String body = dispatchBody(
+                "{\"transcript\":\"le 29,99 sur ma facture\",\"conversation_id\":\"c1\","
+                        + "\"channel\":\"web_voice\",\"account_id\":\"99224964\"}");
+
+        assertTrue(body.contains(BILLING_TEXT), body);
+        assertFalse(body.contains(RAG_TEXT), body);
     }
 
     @Test
