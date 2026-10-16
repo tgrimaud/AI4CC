@@ -21,4 +21,4 @@ An invoice request that does not name an amount or a service asks which one, the
 
 ## Outcome
 
-Shipped in **v0.11.1**.
+Shipped in **v0.11.1** and deployed to eir-ai4cc-tst as image tag `0.11.1`.

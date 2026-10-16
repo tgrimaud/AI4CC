@@ -13,6 +13,9 @@
   first. A named amount or service is explained on its own. A second vague reply asks again.
   After the clarify budget (default 2) the turn is handed to an advisor. "Pourquoi ma facture
   a augmenté ?" asks; it does not recite the difference.
+- **Deployed to eir-ai4cc-tst** as image tag `0.11.1` (Redis, both backends, both voice
+  bridges). A vague invoice turn on the backend answers with the clarify question and does
+  not recite the bill.
 
 ## 2026-10-15 — Sprint 20 closed + v0.11.0 released (invoice difference causes)
 
