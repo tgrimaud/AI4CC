@@ -53,7 +53,11 @@ public final class AmountFocus {
             "augmentation", "diminue", "diminuer", "diminution", "precedent", "dernier",
             "mois", "month", "compared", "rapport", "previous", "change", "changed",
             "changes", "higher", "lower", "increase", "increased", "decrease", "decreased",
-            "differ", "difference", "different", "usual");
+            "differ", "difference", "different", "usual", "usually", "habitude", "probleme",
+            "cette", "aucun", "aucune", "encore", "toujours", "prelevement", "prelevements",
+            "reconnais", "reconnait", "recognise", "recognize", "recognized", "recognised",
+            "service", "services", "chere", "paiement", "payment", "payments", "remboursement",
+            "refund", "coute", "still", "there", "their", "could", "would", "should", "please");
 
     public static boolean hasMoney(String transcript) {
         return !Mention.of(transcript).cents().isEmpty();
