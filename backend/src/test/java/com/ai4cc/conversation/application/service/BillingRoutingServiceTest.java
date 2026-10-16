@@ -102,6 +102,24 @@ class BillingRoutingServiceTest {
     }
 
     @Test
+    void a_vague_word_after_the_budget_still_hands_off() {
+        // GIVEN the clarify budget is already spent
+        var memory = new Memory();
+        memory.turns.add(new ConversationTurn("ma facture a augmenté", AmountClarify.QUESTION_FR));
+        memory.turns.add(new ConversationTurn("je ne sais pas", AmountClarify.FOLLOW_UP_FR));
+        var router = new BillingRoutingService(billing, transcript -> true, memory);
+        var turn = new RoutableTurn("aucune idée", "conv-1", "fr", "99224964", "web_voice", "corr-3");
+
+        // WHEN the customer still names neither an amount nor a service
+        Optional<GeneratedAnswer> answer = router.billingAnswer(turn);
+
+        // THEN the turn is handed to an advisor
+        assertThat(answer).isPresent();
+        assertThat(answer.get().requiresEscalation()).isTrue();
+        assertThat(billing.calls).isZero();
+    }
+
+    @Test
     void a_figure_after_the_question_is_sent_to_billing() {
         // GIVEN the assistant just asked which amount
         var memory = new Memory();

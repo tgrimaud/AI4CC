@@ -32,7 +32,12 @@ public final class AmountClarify {
             "quels", "which", "about", "augmente", "augmenter", "augmentation", "diminue", "diminuer",
             "change", "changee", "elevee", "eleve", "precedent", "precedente", "dernier", "derniere",
             "mois", "month", "compared", "rapport", "previous", "habitude", "probleme", "problemes",
-            "souci", "soucis");
+            "souci", "soucis", "cette", "aucun", "aucune", "encore", "toujours", "jamais",
+            "prelevement", "prelevements", "reconnais", "reconnait", "reconnaissez",
+            "service", "services", "chere", "paiement", "paiements", "payment", "payments",
+            "remboursement", "refund", "coute", "higher", "usual", "usually",
+            "recognise", "recognize", "recognized", "recognised", "still", "there", "their",
+            "could", "would", "should", "please");
 
     private AmountClarify() {
     }
