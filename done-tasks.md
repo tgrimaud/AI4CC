@@ -3,6 +3,17 @@
 > **Scope: Voice Support Bot only.** This is the ledger for all `voice-support-bot`
 > work. Do not log bot work in the workspace-root `BMad/done-tasks.md`.
 
+## 2026-10-16 — Sprint 21 closed + v0.11.1 released (ask which amount)
+
+**Summary:**
+
+- **Sprint 21 closed** and merged into `feat/restart-from-scratch` (`--no-ff`), then tagged
+  **v0.11.1** (CI publishes `ghcr.io/tgrimaud/ai4cc-{backend,voice}:0.11.1`).
+- **BUG-031** — an invoice request that names neither an amount nor a service asks which one
+  first. A named amount or service is explained on its own. A second vague reply asks again.
+  After the clarify budget (default 2) the turn is handed to an advisor. "Pourquoi ma facture
+  a augmenté ?" asks; it does not recite the difference.
+
 ## 2026-10-15 — Sprint 20 closed + v0.11.0 released (invoice difference causes)
 
 **Summary:**

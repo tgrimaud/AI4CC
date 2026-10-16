@@ -1,7 +1,7 @@
 # BUG-031 — An unspecified invoice amount is recited instead of asked
 
 **Type:** Bug (conversation billing)
-**Status:** 🔵 In progress (2026-10-15) — `fix/BUG-031-ask-which-amount` off `feat/sprint-21-ask-which-amount`.
+**Status:** ✅ Released in **v0.11.1** (2026-10-16) — merged into `feat/restart-from-scratch`.
 **Detected by:** User validation on v0.11.0.
 **Related:** US-043, ADR-0055, ADR-0057.
 
