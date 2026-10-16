@@ -64,7 +64,8 @@ public class BillingExplanationService implements ExplainBillingUseCase {
     public BillingExplanation explain(BillingExplanationQuery query) {
         Objects.requireNonNull(query, "query must not be null");
         String language = query.languageCode();
-        if (!intentDetector.isBillingExplanationRequest(query.transcript())) {
+        boolean billingQuestion = intentDetector.isBillingExplanationRequest(query.transcript());
+        if (!billingQuestion && !AmountFocus.mentioned(query.transcript())) {
             return BillingExplanation.notABillingRequest(composer.notABillingRequest(language));
         }
         if (!query.hasReference()) {
@@ -74,10 +75,11 @@ public class BillingExplanationService implements ExplainBillingUseCase {
         if (!identity.canAccessBilling()) {
             return BillingExplanation.identityUnresolved(composer.cannotVerify(language));
         }
-        return explainForAccount(identity.account(), language);
+        return explainForAccount(identity.account(), language, query.transcript(), billingQuestion);
     }
 
-    private BillingExplanation explainForAccount(AccountId account, String language) {
+    private BillingExplanation explainForAccount(
+            AccountId account, String language, String transcript, boolean billingQuestion) {
         List<InvoiceSummary> summaries = retrieveComparable.availableInvoices(account);
         if (summaries.size() < MIN_COMPARABLE_INVOICES) {
             return BillingExplanation.notEnoughData(
@@ -89,7 +91,7 @@ public class BillingExplanationService implements ExplainBillingUseCase {
                     composer.notEnoughData(language), BillingExplanation.REASON_EVIDENCE_UNFETCHABLE);
         }
         ExplanationReadiness readiness = assess.assess(comparison.get());
-        return fromReadiness(comparison.get(), readiness, language);
+        return fromReadiness(comparison.get(), readiness, language, transcript, billingQuestion);
     }
 
     // Summaries are most-recent-first (RetrieveComparableInvoicesUseCase contract): current is the
@@ -107,7 +109,12 @@ public class BillingExplanationService implements ExplainBillingUseCase {
     }
 
     private BillingExplanation fromReadiness(
-            InvoiceComparison comparison, ExplanationReadiness readiness, String language) {
+            InvoiceComparison comparison, ExplanationReadiness readiness, String language,
+            String transcript, boolean billingQuestion) {
+        BillingExplanation focused = focused(comparison, language, transcript, billingQuestion);
+        if (focused != null) {
+            return focused;
+        }
         List<String> causes = causeCodes(comparison);
         if (readiness.confidence() == ExplanationConfidence.EXPLAINABLE) {
             return BillingExplanation.explained(
@@ -119,6 +126,21 @@ public class BillingExplanationService implements ExplainBillingUseCase {
         }
         return BillingExplanation.notEnoughData(
                 composer.notEnoughData(language), reasonOf(readiness.reason()), causes);
+    }
+
+    private BillingExplanation focused(
+            InvoiceComparison comparison, String language, String transcript, boolean billingQuestion) {
+        AmountFocus.Result focus = new AmountFocus().select(comparison.causes(), comparison.totalDelta(), transcript);
+        if (focus.kind() == AmountFocus.Kind.DETAIL) {
+            return BillingExplanation.amountDetail(composer.detail(focus.spoken(), language), focus.codes());
+        }
+        if (focus.kind() != AmountFocus.Kind.UNKNOWN) {
+            return null;
+        }
+        if (!billingQuestion && !AmountFocus.hasMoney(transcript)) {
+            return BillingExplanation.notABillingRequest(composer.notABillingRequest(language));
+        }
+        return BillingExplanation.amountNotFound(composer.unknownAmount(language));
     }
 
     private static List<String> causeCodes(InvoiceComparison comparison) {

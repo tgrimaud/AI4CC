@@ -8,6 +8,7 @@ import com.ai4cc.billing.domain.model.InvoiceComparison;
 import com.ai4cc.billing.domain.model.valueobject.Money;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Locale;
 
 // Turns a deterministic comparison + confidence verdict into grounded, language-aware explanation
@@ -47,6 +48,26 @@ public class BillingExplanationComposer {
         return isFrench(languageCode)
                 ? "Je n'ai pas assez d'éléments pour comparer vos factures, je vous transfère à un conseiller."
                 : "I don't have enough information to compare your bills, I'll transfer you to an advisor.";
+    }
+
+    public String detail(List<AmountFocus.Spoken> lines, String languageCode) {
+        boolean fr = isFrench(languageCode);
+        StringBuilder text = new StringBuilder();
+        for (AmountFocus.Spoken line : lines) {
+            if (!text.isEmpty()) {
+                text.append(' ');
+            }
+            text.append(phrase(line.type(), line.impact(), fr));
+        }
+        return text.toString();
+    }
+
+    public String unknownAmount(String languageCode) {
+        return isFrench(languageCode)
+                ? "Je ne vois pas ce montant sur la différence entre vos deux dernières factures. "
+                  + "Pouvez-vous me redonner le montant exact ?"
+                : "I can't see that amount in the difference between your last two bills. "
+                  + "Could you give me the exact amount again?";
     }
 
     public String notABillingRequest(String languageCode) {
