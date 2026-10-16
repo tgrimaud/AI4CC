@@ -73,6 +73,31 @@ class AmountFocusTest {
     }
 
     @Test
+    void a_higher_than_usual_bill_is_not_an_unknown_amount() {
+        // GIVEN a bill difference
+        BillingCause bundle = cause(BillingCauseType.ONE_OFF_BUNDLE, 2999, "1gb-usa-roaming-bundle");
+
+        // WHEN the customer says the bill is higher than usual, without naming a line
+        AmountFocus.Result result = focus.select(List.of(bundle), euros(2999), "my bill is higher than usual");
+
+        // THEN it is not treated as a missing amount
+        assertThat(result.kind()).isEqualTo(AmountFocus.Kind.FULL);
+    }
+
+    @Test
+    void an_unrecognised_charge_is_not_an_unknown_amount() {
+        // GIVEN a bill difference
+        BillingCause bundle = cause(BillingCauseType.ONE_OFF_BUNDLE, 2999, "1gb-usa-roaming-bundle");
+
+        // WHEN the customer does not recognise a charge, without naming it
+        AmountFocus.Result result = focus.select(
+                List.of(bundle), euros(2999), "je ne reconnais pas un prélèvement sur ma facture");
+
+        // THEN it is not treated as a missing amount
+        assertThat(result.kind()).isEqualTo(AmountFocus.Kind.FULL);
+    }
+
+    @Test
     void an_unknown_amount_is_not_the_whole_bill() {
         // GIVEN a bundle of 29.99 €
         BillingCause bundle = cause(BillingCauseType.ONE_OFF_BUNDLE, 2999, "1gb-usa-roaming-bundle");
