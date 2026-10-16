@@ -20,4 +20,4 @@ An invoice request that uses a scenario phrase, without naming an amount or a se
 
 ## Outcome
 
-Shipped in **v0.11.2**.
+Shipped in **v0.11.2** and deployed to eir-ai4cc-tst as image tag `0.11.2`.

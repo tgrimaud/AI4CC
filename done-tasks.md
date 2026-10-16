@@ -13,6 +13,7 @@
   aucune or still is no longer treated as a named line. Those scenario phrases ask first.
   After the two clarify questions, "aucune idée" and "still no idea" hand the turn to an advisor.
   Bundle, roaming and a named amount stay concrete.
+- **Deployed to eir-ai4cc-tst** as image tag `0.11.2`. The six scenario phrases now ask, a third vague reply hands off, and « le 29,99 » still explains only that line.
 
 ## 2026-10-16 — Sprint 21 closed + v0.11.1 released (ask which amount)
 
